@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Fit met Dicky">
+<meta name="theme-color" content="#ffffff">
+<title>Fit met Dicky</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#d62828;--blue:#1d3461;--blue2:#457b9d;
+  --white:#ffffff;--off:#f8f8f6;--border:#e8e8e4;
+  --text:#1a1a1a;--muted:#888880;--green:#2d6a4f;--shadow:0 2px 16px rgba(29,52,97,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100dvh}
+.shell{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--white)}
+
+/* DESKTOP */
+@media(min-width:768px){
+  .shell{max-width:100%;flex-direction:column;background:var(--white)}
+  /* Header: logo left, nav stretches full remaining width */
+  .app-header{
+    padding:0!important;height:72px;
+    display:flex;flex-direction:row;align-items:stretch;
+    border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:100;background:var(--white);width:100%;
+  }
+  /* Brand: fixed width, vertically centered, horizontal padding */
+  .brand{
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;width:200px;padding:0;
+    margin-bottom:0;border-bottom:none;border-right:1px solid var(--border);
+    height:72px;overflow:hidden;
+  }
+  .logo-wrap{width:100%!important;height:72px!important;border-radius:0!important;padding:6px 16px!important}
+  /* Nav stretches the rest of the header */
+  .nav{
+    flex:1;flex-direction:row;gap:0;padding:0;height:72px;
+    display:flex;align-items:stretch;
+  }
+  .nav-tab{
+    flex:1;padding:0 16px;border-radius:0;
+    border-bottom:3px solid transparent;
+    font-size:13px;font-weight:600;height:72px;
+    display:flex;align-items:center;justify-content:center;
+    white-space:nowrap;
+  }
+  .nav-tab::before{display:none!important;content:none!important}
+  .nav-tab.active{color:var(--red);border-bottom-color:var(--red);background:transparent}
+  .nav-tab:hover:not(.active){background:var(--off)}
+  .header-right{display:none}
+  .sidebar-new-btn{display:none}
+  .header-action{display:none}
+  .content{flex:1;padding:40px 60px!important;background:var(--off);overflow-y:auto}
+  .agenda-wrap{display:flex;flex-direction:column;gap:20px;max-width:800px;margin:0 auto;width:100%}
+  .agenda-panel{background:var(--white);border-radius:20px;padding:28px 36px;border:1px solid var(--border)}
+  .form-wrap,.settings-wrap{padding:0;max-width:680px;margin:0 auto;width:100%}
+  .klant-list{padding:0;max-width:800px;margin:0 auto;width:100%}
+  .overlay{align-items:center!important}
+  .modal{border-radius:20px!important;max-width:520px;margin:auto;max-height:80dvh}
+  .modal-handle{display:none}
+  .mobile-only{display:none!important}
+}
+@media(max-width:767px){
+  .header-right{display:none}
+  .agenda-wrap{display:block}
+  .agenda-panel{background:transparent;padding:0;border:none}
+  .sidebar-new-btn{display:none}
+}
+
+/* HEADER — mobile */
+.app-header{background:var(--white);padding:calc(env(safe-area-inset-top,0px) + 8px) 0 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;padding:0 0 0 12px;flex-shrink:0}
+.logo-wrap{width:90px;height:40px;background:white;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:2px}
+.logo-wrap img{width:100%;height:100%;object-fit:contain}
+.header-action{background:var(--red);color:white;border:none;border-radius:12px;padding:8px 16px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+/* Mobile: logo + nav in één horizontale rij */
+.mobile-nav-row{display:flex;align-items:center;height:52px;gap:0}
+.nav{display:flex;gap:0;flex:1}
+.nav-tab{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 4px;font-size:11px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;font-family:"DM Sans",sans-serif;height:52px}
+.nav-tab.active{color:var(--red);border-bottom-color:var(--red)}
+
+/* CONTENT */
+.content{flex:1;padding:0 0 calc(env(safe-area-inset-bottom,0px) + 20px);overflow-y:auto}
+.view{display:none}.view.active{display:block}
+
+/* WEEK */
+.week-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px}
+.week-label{font-family:"Playfair Display",serif;font-size:17px;font-weight:700;color:var(--blue)}
+.week-btn{background:var(--off);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--blue);font-family:"DM Sans",sans-serif}
+.week-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 16px 12px}
+.day-chip{text-align:center;padding:8px 4px;border-radius:10px;cursor:pointer;transition:all .15s}
+.day-chip.today{background:var(--red);color:white}
+.day-chip.selected{background:var(--blue);color:white}
+.day-chip.has-apt::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--red)}
+.day-chip.today.has-apt::after,.day-chip.selected.has-apt::after{background:white}
+.day-chip{position:relative}
+.day-num{font-size:15px;font-weight:600;line-height:1}
+.day-name{font-size:10px;font-weight:500;opacity:.7;margin-top:2px}
+.day-schedule{padding:0 20px}
+.day-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.time-slot{display:flex;gap:12px;margin-bottom:2px}
+.slot-time{font-size:11px;color:var(--muted);font-family:monospace;width:38px;text-align:right;padding-top:12px;flex-shrink:0}
+.slot-content{flex:1}
+.apt-card{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:2px;cursor:pointer;box-shadow:var(--shadow)}
+.apt-card.blocked{border-left-color:var(--muted);background:var(--off)}
+.apt-card.confirmed{border-left-color:var(--green)}
+.apt-name{font-size:14px;font-weight:600}
+.apt-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.apt-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:4px}
+.apt-badge.confirmed{background:#d1e7dd;color:#0a3622}
+.apt-badge.blocked{background:#f0f0f0;color:#666}
+.empty-day{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:8px}
+
+/* FORM */
+.form-wrap{padding:20px}
+.form-section{margin-bottom:24px}
+.form-section-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:"DM Sans",sans-serif;font-size:16px;padding:11px 14px;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue)}
+.form-textarea{min-height:80px;resize:none}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.avail-strip{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.avail-slot{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;border:1.5px solid transparent}
+.avail-slot.free{background:#e8f4f0;color:var(--green);border-color:#b7ddd3}
+.avail-slot.free.selected{background:var(--green);color:white;border-color:var(--green)}
+.avail-slot.busy,.avail-slot.blocked{background:#fde8e8;color:var(--red);text-decoration:line-through;cursor:not-allowed;opacity:.6}
+.submit-btn{width:100%;background:var(--red);color:white;border:none;border-radius:14px;font-family:"Playfair Display",serif;font-size:17px;font-weight:700;padding:16px;cursor:pointer;margin-top:8px;transition:opacity .15s}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed}
+#form-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px;min-height:18px}
+
+/* SEND MODAL */
+.send-overlay{display:none;position:fixed;inset:0;background:rgba(29,52,97,.55);z-index:300;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:768px){.send-overlay{align-items:center;padding:20px}}
+.send-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:440px;overflow:hidden;box-shadow:0 -4px 40px rgba(0,0,0,.15)}
+@media(min-width:768px){.send-sheet{border-radius:20px}}
+.send-header{background:var(--green);padding:20px 24px;display:flex;align-items:center;gap:12px}
+.send-check{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.send-title{font-family:"Playfair Display",serif;font-size:17px;font-weight:700;color:white}
+.send-subtitle{font-size:13px;color:rgba(255,255,255,.8);margin-top:2px}
+.send-body{padding:20px 24px 32px}
+.send-opt{display:flex;align-items:center;gap:14px;width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;font-family:"DM Sans",sans-serif;text-align:left;margin-bottom:8px;text-decoration:none;color:var(--text)}
+.send-opt:active{opacity:.8}
+.send-opt-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+.send-opt-label{font-size:14px;font-weight:600;color:var(--text)}
+.send-opt-sub{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.send-opt-arrow{color:var(--muted);font-size:18px;margin-left:auto}
+.send-wa{background:#e8fdf0;border-color:#b7ddc9}
+.send-info{background:#e8f0fb;border:1.5px solid #b3c8f0;border-radius:14px;padding:14px 16px;font-size:13px;color:var(--blue);font-weight:500;margin-bottom:8px}
+.send-close{width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:12px;color:var(--muted);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:500;padding:12px;cursor:pointer;margin-top:4px}
+
+/* KLANTEN */
+.klant-list{padding:16px 20px}
+.klant-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+.klant-avatar{width:42px;height:42px;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;font-family:"Playfair Display",serif;font-size:16px;font-weight:700;flex-shrink:0}
+.klant-name{font-size:14px;font-weight:600}
+.klant-meta{font-size:12px;color:var(--muted);margin-top:1px}
+.klant-apts{font-size:11px;font-weight:600;color:var(--blue);margin-top:3px}
+
+/* INSTELLINGEN */
+.settings-wrap{padding:20px}
+.settings-section{margin-bottom:24px}
+.settings-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+.setting-row{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.setting-label{font-size:14px;font-weight:500}
+.setting-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.toggle{width:44px;height:26px;background:var(--border);border-radius:13px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--red)}
+.toggle::after{content:"";position:absolute;width:20px;height:20px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+.blocktime-btn{background:var(--off);border:1.5px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .15s;font-family:"DM Sans",sans-serif}
+.blocktime-btn.active{background:var(--blue);border-color:var(--blue);color:white}
+
+/* MODAL (afspraak detail) */
+.overlay{display:none;position:fixed;inset:0;background:rgba(29,52,97,.5);z-index:200;align-items:flex-end;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:90dvh;overflow-y:auto;padding-bottom:calc(env(safe-area-inset-bottom,0px)+20px)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto 4px}
+.modal-hdr{padding:8px 20px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-title{font-family:"Playfair Display",serif;font-size:18px;font-weight:700;color:var(--blue)}
+.modal-close{background:var(--off);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--muted)}
+.modal-body{padding:16px 20px}
+.modal-action-row{display:flex;gap:8px;margin-top:16px}
+.modal-btn{flex:1;padding:13px;border-radius:12px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none}
+.modal-btn.primary{background:var(--red);color:white}
+.modal-btn.secondary{background:var(--off);color:var(--text);border:1px solid var(--border)}
+.modal-btn.success{background:var(--green);color:white}
+.modal-btn.danger{background:#fde8e8;color:var(--red)}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-label{font-size:13px;color:var(--muted)}
+.detail-value{font-size:13px;font-weight:600;text-align:right;max-width:200px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="app-header">
+    <!-- Desktop: brand left, nav center, button right — all vertically centered -->
+    <div class="brand"><div class="logo-wrap" id="logo-wrap" style="background:white;padding:3px;width:140px;height:52px;border-radius:8px;flex-shrink:0"><img src="data:image/jpeg;base64,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" alt="Fit met Dicky" style="width:100%;height:100%;object-fit:contain"></div>
+    </div>
+    <div class="nav">
+      <button class="nav-tab active" data-tab="agenda" onclick="goTab('agenda')">Agenda</button>
+      <button class="nav-tab" data-tab="nieuw" onclick="goTab('nieuw')">Nieuw</button>
+      <button class="nav-tab" data-tab="klanten" onclick="goTab('klanten')">Klanten</button>
+      <button class="nav-tab" data-tab="instellingen" onclick="goTab('instellingen')">Instellingen</button>
+    </div><!-- /nav -->
+    <div class="header-right">
+      <button class="header-action" onclick="goTab('nieuw')">+ Afspraak</button>
+    </div>
+  </div><!-- /app-header -->
+
+  <div class="content">    <!-- AGENDA -->
+    <div id="v-agenda" class="view active">
+      <div class="agenda-wrap">
+        <div class="agenda-panel">
+          <div class="week-nav">
+            <button class="week-btn" onclick="shiftWeek(-1)">&#8249;</button>
+            <div class="week-label" id="week-label"></div>
+            <button class="week-btn" onclick="shiftWeek(1)">&#8250;</button>
+            <button class="week-btn" onclick="refreshAgenda()" title="Ververs" style="margin-left:6px;font-size:14px">&#8635;</button>
+          </div>
+          <div class="week-days" id="week-days"></div>
+        </div>
+        <div class="agenda-panel">
+          <div class="day-schedule">
+            <div class="day-title" id="day-title"></div>
+            <div id="day-slots"></div>
+          </div>
+        </div>
+      </div>
+      <!-- FAB: snelle afspraak -->
+      <button onclick="openQuickAdd()" id="fab-btn"
+        style="position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+24px);right:20px;z-index:200;
+               width:56px;height:56px;border-radius:50%;background:var(--red);color:white;border:none;
+               font-size:28px;line-height:1;cursor:pointer;box-shadow:0 4px 20px rgba(214,40,40,.4);
+               display:flex;align-items:center;justify-content:center;font-weight:300">+</button>
+    </div>
+
+    <!-- NIEUW -->
+    <div id="v-nieuw" class="view">
+      <div class="form-wrap">
+        <div class="form-section">
+          <div class="form-section-title">Klantgegevens</div>
+          <div class="form-group">
+            <label class="form-label">Klant selecteren</label>
+            <select class="form-select" id="f-klant-select" onchange="selectKlant(this.value)">
+              <option value="">&#8212; Nieuwe klant &#8212;</option>
+            </select>
+          </div>
+
+          <!-- Samenvatting bij bestaande klant -->
+          <div id="klant-summary" style="display:none;background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div id="klant-summary-naam" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+                <div id="klant-summary-sub" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+              </div>
+              <button onclick="clearKlantSelect()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--border)">Wijzig</button>
+            </div>
+          </div>
+
+          <!-- Invoervelden bij nieuwe klant -->
+          <div id="klant-velden">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Voornaam</label>
+                <input class="form-input" id="f-voornaam" type="text" placeholder="Voornaam" autocomplete="off" oninput="updateMailPreview();validateForm()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Achternaam</label>
+                <input class="form-input" id="f-achternaam" type="text" placeholder="Achternaam" autocomplete="off" oninput="updateMailPreview()">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Telefoon</label>
+                <input class="form-input" id="f-tel" type="tel" placeholder="06-" oninput="validateForm()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input class="form-input" id="f-email" type="email" placeholder="@" oninput="validateForm()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Afspraak</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Datum</label>
+              <input class="form-input" id="f-datum" type="date" onchange="updateAvailability();updateMailPreview()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Behandeling</label>
+              <select class="form-select" id="f-type" onchange="updateAvailability();updateMailPreview()">
+                <option value="60">Massage 60 min</option>
+                <option value="90">Massage 90 min</option>
+                <option value="30">Consult 30 min</option>
+                <option value="120">Massage 2 uur</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Beschikbare tijden</label>
+            <div class="avail-strip" id="avail-strip"><span style="font-size:12px;color:var(--muted)">Kies eerst een datum</span></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notitie (optioneel)</label>
+            <textarea class="form-textarea" id="f-notitie" placeholder="Bijv. rugklachten, voorkeur..."></textarea>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Bevestigingsmail preview</div>
+          <div id="mail-preview" style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;color:var(--text)"></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px">Tekst aanpassen via Instellingen</div>
+        </div>
+        <div id="form-hint"></div>
+        <button class="submit-btn" id="submit-btn" onclick="saveAppointment()" disabled>Afspraak inplannen</button>
+      </div>
+    </div>
+
+    <!-- KLANTEN -->
+    <div id="v-klanten" class="view">
+      <div class="klant-list">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <div style="position:relative;flex:1">
+            <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px">&#128269;</span>
+            <input type="text" style="width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px 11px 40px;font-size:16px;font-family:DM Sans,sans-serif;outline:none;color:var(--text)" placeholder="Zoek klant..." oninput="renderKlanten(this.value)">
+          </div>
+          <button onclick="syncKlanten()" title="Ververs klanten"
+            style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;flex-shrink:0;color:var(--blue)">&#8635;</button>
+          <button id="klant-add-btn" onclick="toggleKlantForm()" style="background:var(--red);color:white;border:none;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;white-space:nowrap">+ Klant</button>
+        </div>
+        <div id="klant-form" style="display:none;background:var(--off);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px">Nieuwe klant</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Voornaam</div><input class="form-input" id="nk-voornaam" type="text" placeholder="Voornaam"></div>
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Achternaam</div><input class="form-input" id="nk-achternaam" type="text" placeholder="Achternaam"></div>
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Telefoon</div><input class="form-input" id="nk-tel" type="tel" placeholder="06-"></div>
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">E-mail</div><input class="form-input" id="nk-email" type="email" placeholder="@"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="saveNewKlant()" style="flex:1;background:var(--blue);color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Opslaan</button>
+            <button onclick="toggleKlantForm()" style="background:var(--off);color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif">Annuleer</button>
+          </div>
+        </div>
+        <div id="klant-list-items"></div>
+      </div>
+    </div>
+
+    <!-- INSTELLINGEN -->
+    <div id="v-instellingen" class="view">
+      <div class="settings-wrap">
+        <div class="settings-section">
+          <div class="settings-title">Google Sheets Synchronisatie</div>
+          <div id="sync-status" style="display:flex;align-items:center;gap:10px;background:var(--off);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px">
+            <div id="sync-dot" style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
+            <div id="sync-label" style="color:var(--muted)">Niet verbonden</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Script URL</label>
+            <input class="form-input" id="sheets-url" type="url" placeholder="https://script.google.com/macros/s/...">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button onclick="testSheetsConnection()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px">Verbinden &amp; synchroniseren</button>
+            <button onclick="refreshAgenda()" style="width:100%;background:var(--off);color:var(--blue);border:1.5px solid var(--blue);border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">&#8635; Haal alle data op</button>
+          </div>
+          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;margin-top:12px;font-size:12px;line-height:1.8;color:#78350f">
+            <strong>Eenmalig instellen:</strong><br>
+            1. Ga naar <strong>script.google.com</strong> &#8594; Nieuw project<br>
+            2. Plak inhoud van <strong>FitMetDicky_Script.gs</strong><br>
+            3. Vervang <code>JOUW_SHEET_ID_HIER</code> door jouw Google Sheet ID<br>
+            &nbsp;&nbsp;&nbsp;<em>(URL: docs.google.com/spreadsheets/d/<strong>ID</strong>/edit)</em><br>
+            4. Implementeren &#8594; Nieuwe implementatie &#8594; Web-app<br>
+            &nbsp;&nbsp;&nbsp;Uitvoeren als: <em>Ikzelf</em> &#8226; Toegang: <em>Iedereen</em><br>
+            5. Kopieer URL &#8594; plak hierboven &#8594; Verbinden &amp; sync
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Praktijk</div>
+          <div class="setting-row">
+            <div><div class="setting-label">Logo uploaden</div><div class="setting-sub">Verschijnt in de header</div></div>
+            <button onclick="document.getElementById('logo-upload').click()" style="background:var(--blue);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Upload</button>
+            <input type="file" id="logo-upload" accept="image/*" style="display:none" onchange="uploadLogo(event)">
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Vaste blokkades</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <button class="blocktime-btn" id="bd-1" onclick="toggleBlockDay(1,this)">Ma</button>
+            <button class="blocktime-btn" id="bd-2" onclick="toggleBlockDay(2,this)">Di</button>
+            <button class="blocktime-btn" id="bd-3" onclick="toggleBlockDay(3,this)">Wo</button>
+            <button class="blocktime-btn" id="bd-4" onclick="toggleBlockDay(4,this)">Do</button>
+            <button class="blocktime-btn" id="bd-5" onclick="toggleBlockDay(5,this)">Vr</button>
+            <button class="blocktime-btn" id="bd-6" onclick="toggleBlockDay(6,this)">Za</button>
+            <button class="blocktime-btn" id="bd-0" onclick="toggleBlockDay(0,this)">Zo</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Standaard berichten</div>
+          <div class="form-group">
+            <label class="form-label">Bevestigingsbericht</label>
+            <textarea class="form-textarea" id="msg-bevestiging" style="font-size:14px" oninput="msgTemplate=this.value"></textarea>
+          </div>
+          <button onclick="saveSettings()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer">Opslaan</button>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">EmailJS (automatische mail)</div>
+          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;font-size:12px;line-height:1.6;color:#78350f;margin-bottom:12px">
+            Maak een gratis account op <strong>emailjs.com</strong> (200 mails/mnd gratis) en vul de gegevens in voor automatisch versturen.
+          </div>
+          <div class="form-group"><label class="form-label">Public Key</label><input class="form-input" id="ejs-pubkey" type="text" placeholder="user_xxxxxxx"></div>
+          <div class="form-group"><label class="form-label">Service ID</label><input class="form-input" id="ejs-service" type="text" placeholder="service_xxxxxxx"></div>
+          <div class="form-group"><label class="form-label">Template ID</label><input class="form-input" id="ejs-template" type="text" placeholder="template_xxxxxxx"></div>
+          <div class="setting-row" style="margin-top:4px">
+            <div><div class="setting-label">Automatisch versturen</div><div class="setting-sub">Vereist geldige EmailJS gegevens</div></div>
+            <div class="toggle" id="ejs-toggle" onclick="this.classList.toggle('on');saveSettings()"></div>
+          </div>
+          <button onclick="saveSettings()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer;margin-top:8px">Opslaan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- SEND MODAL -->
+<div class="send-overlay" id="send-overlay">
+  <div class="send-sheet">
+    <div class="send-header">
+      <div class="send-check">&#10003;</div>
+      <div>
+        <div class="send-title">Afspraak ingepland!</div>
+        <div class="send-subtitle" id="send-apt-line"></div>
+      </div>
+    </div>
+    <div class="send-body">
+      <div id="send-options"></div>
+      <div id="send-calendar-btn"></div>
+      <button class="send-close" onclick="closeSendModal()">Sluiten</button>
+    </div>
+  </div>
+</div>
+
+<!-- APT DETAIL MODAL -->
+<div class="overlay" id="apt-overlay" onclick="if(event.target===this)closeAptModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title" id="apt-modal-title">Afspraak</div>
+      <div class="modal-close" onclick="closeAptModal()">&#215;</div>
+    </div>
+    <div class="modal-body" id="apt-modal-body"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// STATE
+const today = new Date(); today.setHours(0,0,0,0);
+let selectedDate = new Date(today);
+let weekOffset = 0;
+let selectedTime = null;
+let pendingSendApt = null;
+const WORK_START = 9, WORK_END = 19, SLOT_STEP = 30;
+
+let appointments = JSON.parse(localStorage.getItem('fmd_apts')||'[]');
+let klanten      = JSON.parse(localStorage.getItem('fmd_klanten')||'[]');
+let blockedDays  = JSON.parse(localStorage.getItem('fmd_blocked_days')||'[]');
+let ejsSettings  = JSON.parse(localStorage.getItem('fmd_ejs')||'{"pubkey":"","service":"","template":"","auto":false}');
+let sheetsUrl    = localStorage.getItem('fmd_sheets_url')||'';
+let syncEnabled  = !!sheetsUrl;
+let msgTemplate  = localStorage.getItem('fmd_msg') || 'Beste [voornaam],\\n\\nJe afspraak bij Fit met Dicky is bevestigd.\\n\\nDatum:       [datum]\\nTijd:        [tijd]\\nBehandeling: [behandeling]\\n\\nTot dan!\\nDicky';
+
+// HELPERS
+const fmtTime = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+// parseDate always uses LOCAL time to avoid UTC timezone shift
+const parseDate = str => { const [y,m,d]=String(str).trim().substring(0,10).split('-').map(Number); return new Date(y,m-1,d); };
+const dateKey   = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmtDate   = d => { const days=['Zo','Ma','Di','Wo','Do','Vr','Za'],months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']; return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]; };
+const initials  = n => n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const avatarClr = n => { const c=['#1d3461','#d62828','#457b9d','#2d6a4f','#6c3483']; let h=0; for(const ch of n) h=(h<<5)-h+ch.charCodeAt(0); return c[Math.abs(h)%c.length]; };
+
+function save(push=true){
+  localStorage.setItem('fmd_apts',JSON.stringify(appointments));
+  localStorage.setItem('fmd_klanten',JSON.stringify(klanten));
+  // Veiligheidscheck: nooit lege data naar Sheets pushen
+  if(push && syncEnabled && sheetsUrl && (appointments.length > 0 || klanten.length > 0)){
+    sheetsPost({action:'saveAll',appointments,klanten}).then(r=>{
+      if(r?.ok) setSyncStatus('ok','Gesynchroniseerd · '+new Date().toLocaleTimeString('nl'));
+      else setSyncStatus('error','Sync mislukt');
+    });
+  }
+}
+
+// NAVIGATION
+function goTab(name){
+  const fab=document.getElementById('fab-btn');
+  if(fab) fab.style.display = name==='agenda' ? 'flex' : 'none';
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('v-'+name).classList.add('active');
+  document.querySelector('.nav-tab[data-tab="'+name+'"]').classList.add('active');
+  if(name==='agenda') renderAgenda();
+  if(name==='nieuw') renderNieuw();
+  if(name==='klanten') renderKlanten('');
+  if(name==='instellingen') initSettings();
+}
+
+// AGENDA
+function shiftWeek(d){ weekOffset+=d; renderAgenda(); }
+
+function renderAgenda(){
+  const base = new Date(today); base.setDate(base.getDate()+weekOffset*7);
+  const dow = base.getDay()===0?6:base.getDay()-1;
+  const ws = new Date(base); ws.setDate(base.getDate()-dow);
+  const we = new Date(ws); we.setDate(ws.getDate()+6);
+  const months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  document.getElementById('week-label').textContent = ws.getDate()+' – '+we.getDate()+' '+months[we.getMonth()];
+  const days = document.getElementById('week-days'); days.innerHTML='';
+  const dayNames=['Ma','Di','Wo','Do','Vr','Za','Zo'];
+  for(let i=0;i<7;i++){
+    const d=new Date(ws); d.setDate(ws.getDate()+i);
+    const dk=dateKey(d), isToday=dk===dateKey(today), isSel=dk===dateKey(selectedDate);
+    const hasApt=appointments.some(a=>a.date===dk&&a.type!=='blocked');
+    const chip=document.createElement('div');
+    chip.className='day-chip'+(isToday?' today':'')+(isSel&&!isToday?' selected':'')+(hasApt?' has-apt':'');
+    chip.innerHTML='<div class="day-num">'+d.getDate()+'</div><div class="day-name">'+dayNames[i]+'</div>';
+    chip.onclick=()=>{selectedDate=new Date(d);renderAgenda();};
+    days.appendChild(chip);
+  }
+  renderDaySlots(selectedDate);
+}
+
+function renderDaySlots(date){
+  document.getElementById('day-title').textContent=fmtDate(date).toUpperCase();
+  const dk=dateKey(date);
+  const dayApts=appointments.filter(a=>a.date===dk).sort((a,b)=>a.startMin-b.startMin);
+  const slots=document.getElementById('day-slots');
+  if(!dayApts.length){ slots.innerHTML='<div class="empty-day"><div class="empty-icon">&#128197;</div><div>Geen afspraken</div></div>'; return; }
+  slots.innerHTML=dayApts.map(apt=>`
+    <div class="time-slot">
+      <div class="slot-time">${fmtTime(apt.startMin)}</div>
+      <div class="slot-content">
+        <div class="apt-card ${apt.type==='blocked'?'blocked':'confirmed'}" onclick="openAptModal('${apt.id}')">
+          <div class="apt-name">${apt.name}</div>
+          <div class="apt-meta">${fmtTime(apt.startMin)} – ${fmtTime(apt.startMin+apt.duration)} · ${apt.treatment||'Massage'}</div>
+          <span class="apt-badge ${apt.type==='blocked'?'blocked':'confirmed'}">${apt.type==='blocked'?'Geblokkeerd':'Bevestigd'}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── QUICK ADD (slide-per-slide) ──
+let qa = { step:1, klantId:'', voornaam:'', achternaam:'', tel:'', email:'',
+           datum:'', time:null, dur:60, treatment:'Massage 60 min', notitie:'' };
+
+function openQuickAdd(){
+  qa = { step:1, klantId:'', voornaam:'', achternaam:'', tel:'', email:'',
+         datum:dateKey(selectedDate), time:null, dur:60, treatment:'Massage 60 min', notitie:'' };
+  document.getElementById('quick-overlay').style.display='block';
+  requestAnimationFrame(()=>{ document.getElementById('quick-sheet').style.transform='translateY(0)'; });
+  qaRender();
+}
+
+function closeQuickAdd(){
+  document.getElementById('quick-sheet').style.transform='translateY(100%)';
+  setTimeout(()=>{ document.getElementById('quick-overlay').style.display='none'; }, 300);
+}
+
+function qaSetDots(step){
+  [1,2,3].forEach(i=>{
+    document.getElementById('qa-dot'+i).style.background = i===step ? 'var(--red)' : 'var(--border)';
+  });
+  const titles = ['Klantgegevens','Datum & tijd','Behandeling & notitie'];
+  document.getElementById('qa-title').textContent = titles[step-1];
+  document.getElementById('qa-back').style.display = step>1 ? 'block' : 'none';
+  document.getElementById('qa-next').textContent = step===3 ? 'Inplannen' : 'Volgende';
+}
+
+function qaRender(){
+  qaSetDots(qa.step);
+  const body = document.getElementById('qa-body');
+
+  if(qa.step===1){
+    const sorted = [...klanten].sort((a,b)=>a.name.localeCompare(b.name));
+    body.innerHTML = `
+      <div style="margin-bottom:12px">
+        <div class="form-label">Bestaande klant</div>
+        <select class="form-select" id="qa-klant" onchange="qaSelectKlant(this.value)">
+          <option value="">— Nieuwe klant —</option>
+          ${sorted.map(k=>`<option value="${k.id}" ${qa.klantId===k.id?'selected':''}>${k.name}${k.tel?' · '+k.tel:''}</option>`).join('')}
+        </select>
+      </div>
+      <div id="qa-klant-info" style="${qa.klantId ? '' : 'display:none'}">
+        <div style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px">
+          <div style="font-weight:600;color:var(--blue)">${qa.voornaam} ${qa.achternaam}</div>
+          <div style="color:var(--muted);margin-top:2px">${qa.tel || ''}${qa.tel&&qa.email?' · ':''}${qa.email || ''}</div>
+        </div>
+      </div>
+      <div id="qa-klant-fields" style="${qa.klantId ? 'display:none' : ''}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><div class="form-label">Voornaam</div><input class="form-input" id="qa-vn" type="text" placeholder="Voornaam" value="${qa.voornaam}" oninput="qa.voornaam=this.value" style="margin:0"></div>
+          <div><div class="form-label">Achternaam</div><input class="form-input" id="qa-an" type="text" placeholder="Achternaam" value="${qa.achternaam}" oninput="qa.achternaam=this.value" style="margin:0"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><div class="form-label">Telefoon</div><input class="form-input" id="qa-tel" type="tel" placeholder="06-" value="${qa.tel}" oninput="qa.tel=this.value" style="margin:0"></div>
+          <div><div class="form-label">E-mail</div><input class="form-input" id="qa-email" type="email" placeholder="@" value="${qa.email}" oninput="qa.email=this.value" style="margin:0"></div>
+        </div>
+      </div>`;
+
+  } else if(qa.step===2){
+    const dk = qa.datum || dateKey(selectedDate);
+    const dur = qa.dur;
+    const dayApts = appointments.filter(a=>a.date===dk);
+    const slots = [];
+    for(let m=9*60; m<19*60; m+=30){
+      const conflict = dayApts.some(a=>m<a.startMin+a.duration && m+dur>a.startMin);
+      slots.push({min:m, conflict, label:fmtTime(m)});
+    }
+    body.innerHTML = `
+      <div style="margin-bottom:14px">
+        <div class="form-label">Datum</div>
+        <input class="form-input" id="qa-datum" type="date" value="${dk}" onchange="qa.datum=this.value;qa.time=null;qaRender()" style="margin:0">
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="form-label">Behandeling duur</div>
+        <select class="form-select" id="qa-type" onchange="qa.dur=parseInt(this.value);qa.treatment=this.options[this.selectedIndex].text;qa.time=null;qaRender()" style="margin:0">
+          <option value="60" ${qa.dur===60?'selected':''}>Massage 60 min</option>
+          <option value="90" ${qa.dur===90?'selected':''}>Massage 90 min</option>
+          <option value="30" ${qa.dur===30?'selected':''}>Consult 30 min</option>
+          <option value="120" ${qa.dur===120?'selected':''}>Massage 2 uur</option>
+        </select>
+      </div>
+      <div class="form-label">Beschikbare tijden</div>
+      <div class="avail-strip">${slots.map(sl=>`
+        <div class="avail-slot ${sl.conflict?'busy':'free'}${qa.time===sl.min?' selected':''}"
+          onclick="${sl.conflict?'':'qaPickTime('+sl.min+')'}">${sl.label}</div>`).join('')}
+      </div>
+      ${qa.time!==null?`<div style="margin-top:10px;text-align:center;font-size:13px;color:var(--blue);font-weight:600">${fmtTime(qa.time)} – ${fmtTime(qa.time+qa.dur)} geselecteerd</div>`:''}`;
+
+  } else if(qa.step===3){
+    body.innerHTML = `
+      <div style="background:var(--off);border-radius:14px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:15px;font-weight:700;color:var(--blue);margin-bottom:4px">${qa.voornaam} ${qa.achternaam}</div>
+        <div style="font-size:13px;color:var(--muted)">${fmtDate(parseDate(qa.datum))} · ${fmtTime(qa.time)} – ${fmtTime(qa.time+qa.dur)}</div>
+        <div style="font-size:13px;color:var(--muted)">${qa.treatment}</div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="form-label">Notitie (optioneel)</div>
+        <textarea class="form-textarea" id="qa-notitie" placeholder="Bijv. rugklachten, voorkeur..." oninput="qa.notitie=this.value" style="height:80px">${qa.notitie}</textarea>
+      </div>`;
+  }
+}
+
+function qaSelectKlant(id){
+  qa.klantId = id;
+  if(!id){ qa.voornaam='';qa.achternaam='';qa.tel='';qa.email=''; qaRender(); return; }
+  const k = klanten.find(c=>c.id===id);
+  if(!k) return;
+  qa.voornaam   = k.voornaam || k.name.split(' ')[0] || '';
+  qa.achternaam = k.achternaam || k.name.split(' ').slice(1).join(' ') || '';
+  qa.tel   = k.tel   || '';
+  qa.email = k.email || '';
+  qaRender();
+}
+
+function qaPickTime(min){
+  qa.time = min;
+  qaRender();
+}
+
+function qaBack(){ if(qa.step>1){ qa.step--; qaRender(); } }
+
+function qaNext(){
+  if(qa.step===1){
+    if(!qa.voornaam){ showToast('Vul een voornaam in'); return; }
+    qa.step=2; qaRender();
+  } else if(qa.step===2){
+    if(!qa.datum){ showToast('Kies een datum'); return; }
+    if(qa.time===null){ showToast('Kies een tijdstip'); return; }
+    qa.step=3; qaRender();
+  } else {
+    // Save appointment
+    const naam = (qa.voornaam+' '+qa.achternaam).trim();
+    const apt = {
+      id: Date.now().toString(), name: naam,
+      voornaam: qa.voornaam, achternaam: qa.achternaam,
+      tel: qa.tel, email: qa.email,
+      date: qa.datum, startMin: qa.time, duration: qa.dur,
+      treatment: qa.treatment, notitie: qa.notitie,
+      status:'confirmed', type:'appointment',
+      notifMethod:'geen', createdAt: new Date().toISOString()
+    };
+    appointments.push(apt);
+    // Auto-save klant
+    const existing = klanten.find(k=>(k.tel&&k.tel===qa.tel)||(k.email&&k.email===qa.email));
+    if(existing){ existing.apts=(existing.apts||0)+1; existing.lastDate=qa.datum; }
+    else if(naam){ klanten.push({id:(Date.now()+1).toString(),name:naam,voornaam:qa.voornaam,achternaam:qa.achternaam,tel:qa.tel,email:qa.email,apts:1,lastDate:qa.datum}); }
+    save();
+    closeQuickAdd();
+    selectedDate = parseDate(qa.datum);
+    renderAgenda();
+    showToast('Afspraak voor '+qa.voornaam+' ingepland!');
+    if(apt.email||apt.tel) setTimeout(()=>openSendModal(apt), 400);
+  }
+}
+
+// ── SYNC KLANTEN from sheets ──
+async function syncKlanten(){
+  const btn = document.querySelector('[onclick="syncKlanten()"]');
+  if(btn){ btn.textContent='⏳'; btn.style.opacity='.5'; }
+  const result = await sheetsGet();
+  if(result?.klanten){
+    klanten = result.klanten;
+    if(result.appointments) appointments = result.appointments.map(a=>{
+      const date=a.date?String(a.date).trim().substring(0,10):'';
+      return {...a,date,startMin:Number(a.startMin)||0,duration:Number(a.duration)||60};
+    });
+    save(false);
+    renderKlanten('');
+    showToast('Klanten bijgewerkt ✓');
+    setSyncStatus('ok', klanten.length+' klanten opgehaald');
+  } else {
+    showToast('Ophalen mislukt');
+  }
+  if(btn){ btn.textContent='↻'; btn.style.opacity='1'; }
+}
+
+async function refreshAgenda(){
+  const btn=document.querySelector('.week-btn[onclick*="refreshAgenda"]');
+  if(btn){btn.style.opacity='.5';}
+  setSyncStatus('loading','Ophalen...');
+  const result=await sheetsGet();
+  console.log('Sheets:',JSON.stringify(result)?.slice(0,300));
+  if(result?.appointments){
+    if(result.appointments.length>0){
+      appointments=result.appointments.map(a=>({...a,date:String(a.date).trim().substring(0,10),startMin:Number(a.startMin)||0,duration:Number(a.duration)||60}));
+      klanten=result.klanten||[];
+      save(false);
+      setSyncStatus('ok',appointments.length+' afspraken');
+      showToast('Agenda bijgewerkt \u2713');
+    } else {
+      setSyncStatus('ok','Sheet leeg');
+      showToast('Sheet bevat geen afspraken');
+    }
+  } else {
+    setSyncStatus('error',result?.error?.slice(0,50)||'Geen response');
+    showToast('Ophalen mislukt');
+  }
+  if(btn){btn.style.opacity='1';}
+  renderAgenda();
+}
+
+// AVAILABILITY
+function updateAvailability(){
+  const dateVal=document.getElementById('f-datum').value;
+  selectedTime=null;
+  validateForm();
+  if(!dateVal){document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--muted)">Kies eerst een datum</span>';return;}
+  const dur=parseInt(document.getElementById('f-type').value);
+  const date=parseDate(dateVal);
+  if(blockedDays.includes(date.getDay())){
+    document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--red);font-weight:600">Deze dag is geblokkeerd</span>';
+    return;
+  }
+  const dk=dateKey(date);
+  const dayApts=appointments.filter(a=>a.date===dk);
+  const slotsHtml=[];
+  for(let min=WORK_START*60;min+dur<=WORK_END*60;min+=SLOT_STEP){
+    const conflict=dayApts.some(a=>min<a.startMin+a.duration&&min+dur>a.startMin);
+    const cls=conflict?(dayApts.find(a=>a.date===dk&&min>=a.startMin&&min<a.startMin+a.duration)?.type==='blocked'?'blocked':'busy'):'free';
+    slotsHtml.push('<div class="avail-slot '+cls+'" onclick="'+(conflict?'':('selectTime('+min+',this)'))+'">'+fmtTime(min)+'</div>');
+  }
+  document.getElementById('avail-strip').innerHTML=slotsHtml.join('');
+}
+
+function selectTime(min,el){
+  selectedTime=min;
+  document.querySelectorAll('.avail-slot.free').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  validateForm();
+  updateMailPreview();
+}
+
+// VALIDATION
+function validateForm(){
+  const vn=document.getElementById('f-voornaam')?.value.trim();
+  const tel=document.getElementById('f-tel')?.value.trim();
+  const email=document.getElementById('f-email')?.value.trim();
+  const btn=document.getElementById('submit-btn');
+  const hint=document.getElementById('form-hint');
+  if(!btn) return;
+  const missing=[];
+  if(!vn) missing.push('voornaam');
+  if(selectedTime===null) missing.push('tijdstip');
+  if(!tel&&!email) missing.push('telefoon of e-mail');
+  if(missing.length===0){
+    btn.disabled=false; btn.style.opacity='1'; if(hint) hint.textContent='';
+  } else {
+    btn.disabled=true; btn.style.opacity='.4';
+    if(hint) hint.textContent='Nog invullen: '+missing.join(', ');
+  }
+}
+
+// MAIL PREVIEW
+function buildMailBody(apt){
+  const dateStr=fmtDate(parseDate(apt.date));
+  const tijdStr=fmtTime(apt.startMin)+' - '+fmtTime(apt.startMin+apt.duration);
+  return msgTemplate.replace(/\\[voornaam\\]/g,apt.voornaam||apt.name.split(' ')[0]).replace(/\\[achternaam\\]/g,apt.achternaam||'').replace(/\\[naam\\]/g,apt.name).replace(/\\[datum\\]/g,dateStr).replace(/\\[tijd\\]/g,tijdStr).replace(/\\[behandeling\\]/g,apt.treatment||'Massage');
+}
+
+function updateMailPreview(){
+  const p=document.getElementById('mail-preview'); if(!p) return;
+  const vn=document.getElementById('f-voornaam')?.value.trim()||'Klant';
+  const an=document.getElementById('f-achternaam')?.value.trim()||'';
+  const datum=document.getElementById('f-datum')?.value;
+  const typeEl=document.getElementById('f-type');
+  const treatment=typeEl?.options[typeEl.selectedIndex]?.text||'Massage';
+  const dateStr=datum?fmtDate(parseDate(datum)):'[datum]';
+  const dur=parseInt(document.getElementById('f-type')?.value||'60');
+  const timeStr=selectedTime!==null?(fmtTime(selectedTime)+' - '+fmtTime(selectedTime+dur)):'[tijd]';
+  p.textContent=msgTemplate.replace(/\\[voornaam\\]/g,vn).replace(/\\[achternaam\\]/g,an).replace(/\\[naam\\]/g,(vn+' '+an).trim()).replace(/\\[datum\\]/g,dateStr).replace(/\\[tijd\\]/g,timeStr).replace(/\\[behandeling\\]/g,treatment);
+}
+
+// SAVE APPOINTMENT
+function saveAppointment(){
+  const voornaam=document.getElementById('f-voornaam').value.trim();
+  const achternaam=document.getElementById('f-achternaam').value.trim();
+  const naam=(voornaam+' '+achternaam).trim();
+  const tel=document.getElementById('f-tel').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const datum=document.getElementById('f-datum').value;
+  const dur=parseInt(document.getElementById('f-type').value);
+  const type=document.getElementById('f-type').options[document.getElementById('f-type').selectedIndex].text;
+  const notitie=document.getElementById('f-notitie').value.trim();
+  if(!voornaam||!datum||selectedTime===null) return;
+  const apt={id:Date.now().toString(),name:naam,voornaam,achternaam,tel,email,date:datum,startMin:selectedTime,duration:dur,treatment:type,notitie,status:'confirmed',type:'appointment',createdAt:new Date().toISOString()};
+  appointments.push(apt);
+  // Save/update klant
+  const existing=klanten.find(k=>(k.tel&&k.tel===tel)||(k.email&&k.email===email));
+  if(existing){existing.apts=(existing.apts||0)+1;existing.lastDate=datum;existing.voornaam=voornaam;existing.achternaam=achternaam;existing.name=naam;if(tel)existing.tel=tel;if(email)existing.email=email;}
+  else{klanten.push({id:(Date.now()+1).toString(),name:naam,voornaam,achternaam,tel,email,apts:1,lastDate:datum});}
+  save();
+  // Reset form
+  ['f-voornaam','f-achternaam','f-tel','f-email','f-notitie'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-datum').value=''; document.getElementById('f-klant-select').value='';
+  document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--muted)">Kies eerst een datum</span>';
+  // Reset klant summary
+  const summary=document.getElementById('klant-summary');
+  const velden=document.getElementById('klant-velden');
+  if(summary) summary.style.display='none';
+  if(velden)  velden.style.display='';
+  selectedTime=null; validateForm();
+  selectedDate=parseDate(datum);
+  goTab('agenda');
+  openSendModal(apt);
+}
+
+// SEND MODAL
+function openSendModal(apt){
+  pendingSendApt=apt;
+  const dateStr=fmtDate(parseDate(apt.date));
+  const isMobile=window.innerWidth<768;
+  document.getElementById('send-apt-line').textContent=(apt.voornaam||apt.name)+' '+(apt.achternaam||'')+' · '+dateStr+' '+fmtTime(apt.startMin);
+  const container=document.getElementById('send-options'); container.innerHTML='';
+  if(apt.email){
+    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>sendViaEmail(apt.id);
+    btn.innerHTML='<span class="send-opt-icon">\u2709\ufe0f</span><div class="send-opt-text"><div class="send-opt-label">E-mail sturen</div><div class="send-opt-sub">'+apt.email+'</div></div><span class="send-opt-arrow">\u203a</span>';
+    container.appendChild(btn);
+  }
+  if(apt.tel){
+    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>sendViaWhatsApp(apt.id);
+    btn.innerHTML='<span class="send-opt-icon">\ud83d\udcac</span><div class="send-opt-text"><div class="send-opt-label">WhatsApp sturen</div><div class="send-opt-sub">'+apt.tel+'</div></div><span class="send-opt-arrow">\u203a</span>';
+    container.appendChild(btn);
+  }
+  if(!apt.email&&!apt.tel){
+    const d=document.createElement('div'); d.className='send-info'; d.textContent='Geen contactgegevens beschikbaar';
+    container.appendChild(d);
+  }
+  const calContainer=document.getElementById('send-calendar-btn'); calContainer.innerHTML='';
+  if(isMobile){
+    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>doExportCalendar(apt.id);
+    btn.innerHTML='<span class="send-opt-icon">\ud83d\udcc5</span><div class="send-opt-text"><div class="send-opt-label">Toevoegen aan Agenda</div><div class="send-opt-sub">Download .ics bestand</div></div>';
+    calContainer.appendChild(btn);
+  }
+  document.getElementById('send-overlay').style.display='flex';
+}
+
+function closeSendModal(){ document.getElementById('send-overlay').style.display='none'; pendingSendApt=null; }
+
+function sendViaEmail(id){
+  const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(!apt) return;
+  sendConfirmationMail(apt);
+  const c=document.getElementById('send-options'); c.innerHTML='';
+  const d=document.createElement('div'); d.className='send-info'; d.textContent='Mail-app geopend \u2014 verstuur de mail en kom terug.';
+  c.appendChild(d);
+}
+
+function sendViaWhatsApp(id){
+  const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(!apt||!apt.tel) return;
+  const dateStr=fmtDate(parseDate(apt.date));
+  const msg='Beste '+(apt.voornaam||apt.name.split(' ')[0])+',\\n\\nJe afspraak bij Fit met Dicky is bevestigd.\\n\\nDatum: '+dateStr+'\\nTijd: '+fmtTime(apt.startMin)+' - '+fmtTime(apt.startMin+apt.duration)+'\\nBehandeling: '+apt.treatment+'\\n\\nTot dan!\\nDicky';
+  const tel=apt.tel.replace(/\\D/g,'').replace(/^0/,'31');
+  const c=document.getElementById('send-options'); c.innerHTML='';
+  const a=document.createElement('a'); a.className='send-opt send-wa'; a.href='https://wa.me/'+tel+'?text='+encodeURIComponent(msg);
+  a.innerHTML='<span class="send-opt-icon">\ud83d\udcac</span><div class="send-opt-text"><div class="send-opt-label">Tik hier om WhatsApp te openen</div><div class="send-opt-sub">Kom daarna terug voor kalender</div></div><span class="send-opt-arrow">\u203a</span>';
+  c.appendChild(a);
+}
+
+function doExportCalendar(id){
+  const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(apt) exportToCalendar(apt);
+  closeSendModal();
+}
+
+// APT MODAL
+function openAptModal(id){
+  const apt=appointments.find(a=>a.id===id); if(!apt) return;
+  document.getElementById('apt-modal-title').textContent=apt.type==='blocked'?'Geblokkeerd':apt.name;
+  const dateObj=parseDate(apt.date);
+  document.getElementById('apt-modal-body').innerHTML=`
+    <div class="detail-row"><span class="detail-label">Datum</span><span class="detail-value">${fmtDate(dateObj)}</span></div>
+    <div class="detail-row"><span class="detail-label">Tijd</span><span class="detail-value">${fmtTime(apt.startMin)} – ${fmtTime(apt.startMin+apt.duration)}</span></div>
+    ${apt.type!=='blocked'?`
+    <div class="detail-row"><span class="detail-label">Behandeling</span><span class="detail-value">${apt.treatment}</span></div>
+    <div class="detail-row"><span class="detail-label">Telefoon</span><span class="detail-value">${apt.tel||'&#8212;'}</span></div>
+    <div class="detail-row"><span class="detail-label">E-mail</span><span class="detail-value">${apt.email||'&#8212;'}</span></div>
+    ${apt.notitie?'<div class="detail-row"><span class="detail-label">Notitie</span><span class="detail-value">'+apt.notitie+'</span></div>':''}`:''}
+    <div class="modal-action-row">
+      ${apt.type!=='blocked'&&(apt.email||apt.tel)?`<button class="modal-btn primary" onclick="openSendModal(appointments.find(a=>a.id==='${apt.id}'))">Stuur bericht</button>`:''}\n      <button class="modal-btn danger" onclick="deleteApt('${apt.id}')">Verwijder</button>
+    </div>`;
+  document.getElementById('apt-overlay').classList.add('open');
+}
+function closeAptModal(){ document.getElementById('apt-overlay').classList.remove('open'); }
+function deleteApt(id){ appointments=appointments.filter(a=>a.id!==id); save(); closeAptModal(); renderAgenda(); showToast('Afspraak verwijderd.'); }
+
+// CALENDAR EXPORT
+function exportToCalendar(apt){
+  const [y,mo,d]=apt.date.split('-').map(Number);
+  const sH=Math.floor(apt.startMin/60),sM=apt.startMin%60;
+  const em=apt.startMin+apt.duration,eH=Math.floor(em/60),eMi=em%60;
+  const pad=n=>String(n).padStart(2,'0');
+  const dtStart=y+''+pad(mo)+pad(d)+'T'+pad(sH)+pad(sM)+'00';
+  const dtEnd=y+''+pad(mo)+pad(d)+'T'+pad(eH)+pad(eMi)+'00';
+  const dtStamp=new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Fit met Dicky//NL','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+apt.id+'@fitmetdicky','DTSTAMP:'+dtStamp,'DTSTART:'+dtStart,'DTEND:'+dtEnd,'SUMMARY:'+apt.name+' — '+apt.treatment,'DESCRIPTION:'+apt.treatment+(apt.tel?'\\\\nTel: '+apt.tel:''),'LOCATION:Fit met Dicky','END:VEVENT','END:VCALENDAR'].join('\\r\\n');
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='afspraak-'+apt.name.split(' ')[0].toLowerCase()+'-'+apt.date+'.ics'; a.click(); URL.revokeObjectURL(url);
+  showToast('Kalenderitem aangemaakt!');
+}
+
+// MAIL
+async function sendConfirmationMail(apt){
+  const body=buildMailBody(apt);
+  if(ejsSettings.auto&&ejsSettings.pubkey&&ejsSettings.service&&ejsSettings.template&&apt.email){
+    try{ emailjs.init(ejsSettings.pubkey); await emailjs.send(ejsSettings.service,ejsSettings.template,{to_email:apt.email,to_name:apt.name,message:body,appointment_date:apt.date,appointment_time:fmtTime(apt.startMin),treatment:apt.treatment}); showToast('Bevestigingsmail verstuurd!'); return; }catch(e){ console.error('EmailJS:',e); }
+  }
+  if(apt.email){
+    const subject=encodeURIComponent('Bevestiging afspraak — '+fmtDate(parseDate(apt.date)));
+    window.location.href='mailto:'+apt.email+'?subject='+subject+'&body='+encodeURIComponent(body);
+  }
+}
+
+// KLANTEN
+function populateKlantDropdown(){
+  const sel=document.getElementById('f-klant-select'); if(!sel) return;
+  const sorted=[...klanten].sort((a,b)=>a.name.localeCompare(b.name));
+  sel.innerHTML='<option value="">— Nieuwe klant —</option>'+sorted.map(k=>'<option value="'+k.id+'">'+k.name+(k.tel?' · '+k.tel:'')+'</option>').join('');
+}
+
+function selectKlant(id){
+  const velden  = document.getElementById('klant-velden');
+  const summary = document.getElementById('klant-summary');
+
+  if(!id){
+    // Nieuwe klant — toon velden, verberg samenvatting, leeg velden
+    velden.style.display  = '';
+    summary.style.display = 'none';
+    ['f-voornaam','f-achternaam','f-tel','f-email'].forEach(i=>{
+      const el=document.getElementById(i); if(el) el.value='';
+    });
+    updateMailPreview(); validateForm();
+    return;
+  }
+
+  const k = klanten.find(c=>c.id===id);
+  if(!k) return;
+
+  // Vul hidden velden in voor saveAppointment
+  document.getElementById('f-voornaam').value  = k.voornaam || k.name.split(' ')[0] || '';
+  document.getElementById('f-achternaam').value = k.achternaam || k.name.split(' ').slice(1).join(' ') || '';
+  document.getElementById('f-tel').value   = k.tel   || '';
+  document.getElementById('f-email').value = k.email || '';
+
+  // Toon samenvatting, verberg velden
+  document.getElementById('klant-summary-naam').textContent = k.name;
+  document.getElementById('klant-summary-sub').textContent  =
+    [k.tel, k.email].filter(Boolean).join(' · ') || 'Geen contactgegevens';
+  velden.style.display  = 'none';
+  summary.style.display = '';
+
+  updateMailPreview(); validateForm();
+}
+
+function clearKlantSelect(){
+  document.getElementById('f-klant-select').value = '';
+  selectKlant('');
+}
+
+function toggleKlantForm(){
+  const form=document.getElementById('klant-form'), btn=document.getElementById('klant-add-btn');
+  const open=form.style.display==='none';
+  form.style.display=open?'block':'none'; btn.textContent=open?'\u2715 Sluiten':'+ Klant';
+  if(open) document.getElementById('nk-voornaam').focus();
+}
+
+function saveNewKlant(){
+  const vn=document.getElementById('nk-voornaam').value.trim(), an=document.getElementById('nk-achternaam').value.trim(), tel=document.getElementById('nk-tel').value.trim(), email=document.getElementById('nk-email').value.trim();
+  if(!vn){showToast('Vul minimaal een voornaam in');return;}
+  const naam=(vn+' '+an).trim();
+  klanten.push({id:Date.now().toString(),name:naam,voornaam:vn,achternaam:an,tel,email,apts:0,lastDate:''});
+  save(); ['nk-voornaam','nk-achternaam','nk-tel','nk-email'].forEach(id=>document.getElementById(id).value='');
+  toggleKlantForm(); renderKlanten(''); showToast(naam+' toegevoegd!');
+}
+
+function renderKlanten(q){
+  const list=document.getElementById('klant-list-items');
+  const filtered=klanten.filter(k=>!q||k.name.toLowerCase().includes(q.toLowerCase()));
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px">👤</div><div style="font-size:14px">'+(q?'Geen resultaten':'Nog geen klanten')+'</div></div>';return;}
+  list.innerHTML=filtered.map(k=>`
+    <div class="klant-card">
+      <div class="klant-avatar" style="background:${avatarClr(k.name)}">${initials(k.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="klant-name">${k.voornaam||k.name} ${k.achternaam||''}</div>
+        <div class="klant-meta">${k.tel||'&#8212;'} · ${k.email||'&#8212;'}</div>
+        <div class="klant-apts">${(k.apts||0)===1?'1 afspraak':(k.apts||0)+' afspraken'} · laatste: ${k.lastDate?fmtDate(parseDate(k.lastDate)):'&#8212;'}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="openEditKlant('${k.id}',event)" style="background:var(--off);border:1px solid var(--border);color:var(--blue);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Wijzig</button>
+        <button onclick="deleteKlant('${k.id}',event)" style="background:#fde8e8;border:none;color:var(--red);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Verwijder</button>
+      </div>
+    </div>`).join('');
+}
+
+function openEditKlant(id, e){
+  e.stopPropagation();
+  const k = klanten.find(c=>c.id===id); if(!k) return;
+  // Build modal
+  const overlay = document.createElement('div');
+  overlay.id = 'edit-klant-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(29,52,97,.5);z-index:400;display:flex;align-items:flex-end;backdrop-filter:blur(4px)';
+  overlay.innerHTML = `
+    <div style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:520px;margin:0 auto;padding-bottom:calc(env(safe-area-inset-bottom,0px)+24px)">
+      <div style="width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto"></div>
+      <div style="padding:0 24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--blue)">Klant bewerken</div>
+        <div style="width:30px;height:30px;background:var(--off);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:16px" onclick="document.getElementById('edit-klant-overlay').remove()">×</div>
+      </div>
+      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Voornaam</div>
+            <input id="ek-voornaam" class="form-input" type="text" value="${k.voornaam||k.name.split(' ')[0]||''}" style="margin-bottom:0">
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Achternaam</div>
+            <input id="ek-achternaam" class="form-input" type="text" value="${k.achternaam||k.name.split(' ').slice(1).join(' ')||''}" style="margin-bottom:0">
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Telefoon</div>
+          <input id="ek-tel" class="form-input" type="tel" value="${k.tel||''}" style="margin-bottom:0">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">E-mail</div>
+          <input id="ek-email" class="form-input" type="email" value="${k.email||''}" style="margin-bottom:0">
+        </div>
+        <button onclick="saveEditKlant('${k.id}')"
+          style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">
+          Opslaan
+        </button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+function saveEditKlant(id){
+  const k = klanten.find(c=>c.id===id); if(!k) return;
+  const vn = document.getElementById('ek-voornaam').value.trim();
+  const an = document.getElementById('ek-achternaam').value.trim();
+  if(!vn){ showToast('Voornaam is verplicht'); return; }
+  k.voornaam   = vn;
+  k.achternaam = an;
+  k.name       = (vn+' '+an).trim();
+  k.tel        = document.getElementById('ek-tel').value.trim();
+  k.email      = document.getElementById('ek-email').value.trim();
+  save();
+  document.getElementById('edit-klant-overlay')?.remove();
+  renderKlanten(document.querySelector('.klant-list input')?.value||'');
+  showToast(k.name+' bijgewerkt!');
+}
+
+function deleteKlant(id,e){
+  e.stopPropagation();
+  if(!confirm('Klant verwijderen?')) return;
+  klanten=klanten.filter(k=>k.id!==id); save();
+  renderKlanten(document.querySelector('.klant-list input')?.value||'');
+  showToast('Klant verwijderd.');
+}
+
+// FORM INIT
+function renderNieuw(){
+  const d=new Date(); d.setHours(0,0,0,0);
+  document.getElementById('f-datum').min=dateKey(d);
+  document.getElementById('f-datum').value=dateKey(selectedDate);
+  populateKlantDropdown(); updateAvailability(); updateMailPreview(); validateForm();
+}
+
+// SETTINGS
+function initSettings(){
+  const urlEl=document.getElementById('sheets-url'); if(urlEl) urlEl.value=sheetsUrl||'';;
+  if(sheetsUrl) setSyncStatus('ok','Verbonden');
+  blockedDays.forEach(dow=>{const btn=document.getElementById('bd-'+dow);if(btn)btn.classList.add('active');});
+  const msgEl=document.getElementById('msg-bevestiging'); if(msgEl) msgEl.value=msgTemplate;
+  const ejsEl=document.getElementById('ejs-pubkey'); if(ejsEl){document.getElementById('ejs-pubkey').value=ejsSettings.pubkey||'';document.getElementById('ejs-service').value=ejsSettings.service||'';document.getElementById('ejs-template').value=ejsSettings.template||'';if(ejsSettings.auto)document.getElementById('ejs-toggle').classList.add('on');}
+}
+
+function toggleBlockDay(dow,btn){
+  if(blockedDays.includes(dow)){blockedDays=blockedDays.filter(d=>d!==dow);btn.classList.remove('active');}
+  else{blockedDays.push(dow);btn.classList.add('active');}
+  localStorage.setItem('fmd_blocked_days',JSON.stringify(blockedDays));
+}
+
+function saveSettings(){
+  msgTemplate=document.getElementById('msg-bevestiging')?.value||msgTemplate;
+  localStorage.setItem('fmd_msg',msgTemplate);
+  ejsSettings={pubkey:document.getElementById('ejs-pubkey')?.value.trim()||'',service:document.getElementById('ejs-service')?.value.trim()||'',template:document.getElementById('ejs-template')?.value.trim()||'',auto:document.getElementById('ejs-toggle')?.classList.contains('on')||false};
+  localStorage.setItem('fmd_ejs',JSON.stringify(ejsSettings));
+  localStorage.setItem('fmd_blocked_days',JSON.stringify(blockedDays));
+  showToast('Instellingen opgeslagen!');
+}
+
+// GOOGLE SHEETS
+function getSheetsUrl(){ return document.getElementById('sheets-url')?.value.trim()||sheetsUrl; }
+function setSyncStatus(state,msg){
+  const dot=document.getElementById('sync-dot'), label=document.getElementById('sync-label'); if(!dot||!label) return;
+  const colors={ok:'#2d6a4f',error:'#d62828',loading:'#f77f00',off:'var(--muted)'};
+  dot.style.background=colors[state]||colors.off; label.textContent=msg; label.style.color=colors[state]||colors.off;
+}
+
+async function safeJson(res){ const text=await res.text(); try{return JSON.parse(text);}catch(e){console.error('Sheets parse error:',text.slice(0,200));return{error:'Parse fout: '+text.slice(0,100)};} }
+
+async function sheetsPost(data){
+  const url=getSheetsUrl(); if(!url) return null;
+  try{ const res=await fetch(url,{method:'POST',redirect:'follow',body:JSON.stringify(data)}); return await safeJson(res); }
+  catch(e){ console.error('sheetsPost:',e); return{error:e.message}; }
+}
+
+async function sheetsGet(){
+  const url=getSheetsUrl(); if(!url) return null;
+  try{ const res=await fetch(url+'?action=getAll',{redirect:'follow'}); return await safeJson(res); }
+  catch(e){ console.error('sheetsGet:',e); return{error:e.message}; }
+}
+
+async function testSheetsConnection(){
+  const url=document.getElementById('sheets-url')?.value.trim();
+  if(!url){showToast('Vul eerst een Script URL in');return;}
+  sheetsUrl=url; localStorage.setItem('fmd_sheets_url',url); syncEnabled=true;
+  setSyncStatus('loading','Verbinden...'); showToast('Verbinden met Google Sheets...');
+
+  // Altijd eerst ophalen — nooit blindelings overschrijven
+  const result = await sheetsGet();
+  if(result?.error){
+    setSyncStatus('error','Verbinding mislukt: '+result.error.slice(0,40));
+    showToast('Verbinding mislukt. Check de URL.');
+    return;
+  }
+  if(result?.appointments){
+    if(result.appointments.length > 0){
+      // Sheets heeft data — laad die in
+      appointments = result.appointments.map(a=>{
+        const date=a.date?String(a.date).trim().substring(0,10):'';
+        return {...a,date,startMin:Number(a.startMin)||0,duration:Number(a.duration)||60};
+      });
+      klanten = result.klanten || [];
+      save(false);
+      renderAgenda();
+      setSyncStatus('ok',appointments.length+' afspraken opgehaald uit Sheets');
+      showToast('Verbonden! Data opgehaald \u2713');
+    } else if(appointments.length > 0 || klanten.length > 0){
+      // Sheets leeg, lokaal heeft data — push lokaal omhoog
+      const push = await sheetsPost({action:'saveAll',appointments,klanten});
+      if(push?.ok){setSyncStatus('ok','Verbonden en lokale data geüpload');showToast('Verbonden! Lokale data geüpload \u2713');}
+      else{setSyncStatus('error','Upload mislukt');showToast('Verbinding ok maar upload mislukt.');}
+    } else {
+      // Beide leeg
+      setSyncStatus('ok','Verbonden — nog geen data');
+      showToast('Verbonden \u2713');
+    }
+  } else {
+    setSyncStatus('error','Geen response van Sheets');
+    showToast('Verbinding mislukt. Check de URL.');
+  }
+}
+
+// LOGO
+function uploadLogo(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader(); reader.onload=ev=>{document.getElementById('logo-wrap').innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:cover">'; localStorage.setItem('fmd_logo',ev.target.result);}; reader.readAsDataURL(file);
+}
+
+// TOAST
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg; t.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+24px);left:50%;transform:translateX(-50%);background:var(--blue);color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);font-family:DM Sans,sans-serif';
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+}
+
+// INIT
+const savedLogo=localStorage.getItem('fmd_logo'); if(savedLogo) document.getElementById('logo-wrap').innerHTML='<img src="'+savedLogo+'" style="width:100%;height:100%;object-fit:cover">';
+if(sheetsUrl) setSyncStatus('ok','Verbonden');
+renderAgenda();
+</script>
+<!-- QUICK ADD MODAL -->
+<div id="quick-overlay" onclick="if(event.target===this)closeQuickAdd()" style="display:none;position:fixed;inset:0;background:rgba(29,52,97,.55);z-index:300;backdrop-filter:blur(4px)">
+  <div id="quick-sheet" style="position:absolute;bottom:0;left:0;right:0;background:var(--white);border-radius:24px 24px 0 0;padding-bottom:calc(env(safe-area-inset-bottom,0px)+24px);max-height:90dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto 0"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px 0">
+      <div id="qa-title" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--blue)">Klantgegevens</div>
+      <div style="display:flex;gap:6px">
+        <div id="qa-dot1" style="width:8px;height:8px;border-radius:50%;background:var(--red)"></div>
+        <div id="qa-dot2" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
+        <div id="qa-dot3" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
+      </div>
+    </div>
+    <div id="qa-body" style="padding:20px 24px"></div>
+    <div style="padding:0 24px;display:flex;gap:10px">
+      <button id="qa-back" onclick="qaBack()" style="background:var(--off);border:1.5px solid var(--border);border-radius:14px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;padding:14px 20px;cursor:pointer;display:none">Terug</button>
+      <button id="qa-next" onclick="qaNext()" style="flex:1;background:var(--blue);color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;padding:14px;cursor:pointer">Volgende</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+</body>
+</html>
