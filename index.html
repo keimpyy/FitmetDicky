@@ -15,6 +15,7 @@
   --white:#ffffff;--off:#f8f8f6;--border:#e8e8e4;
   --text:#1a1a1a;--muted:#888880;--green:#2d6a4f;--shadow:0 2px 16px rgba(29,52,97,.1);
 }
+@keyframes fmdspin{to{transform:rotate(360deg)}}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100dvh}
 .shell{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--white)}
@@ -366,7 +367,7 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
           </div>
           <div class="form-group">
             <label class="form-label">Script URL</label>
-            <input class="form-input" id="sheets-url" type="url" placeholder="https://script.google.com/macros/s/...">
+            <input class="form-input" id="sheets-url" type="url" placeholder="https://script.google.com/macros/s/..." readonly>
           </div>
           <div style="display:flex;gap:8px;margin-top:4px">
             <button onclick="testSheetsConnection()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px">Verbinden &amp; synchroniseren</button>
@@ -429,6 +430,8 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
     </div>
   </div>
 
+<div id="startup-overlay" style="position:fixed;inset:0;background:rgba(255,255,255,.96);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px"><div style="width:42px;height:42px;border:4px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:fmdspin 1s linear infinite"></div><div style="font-size:14px;font-weight:600;color:var(--blue);font-family:'DM Sans',sans-serif">Gegevens laden...</div></div>
+
 <!-- SEND MODAL -->
 <div class="send-overlay" id="send-overlay">
   <div class="send-sheet">
@@ -461,6 +464,9 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
+// CONFIG
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxW8NMti5OOuAGCIEb1y3BPwLNZ2izURZAYS-eAGeMjGrgsyTe4rQWOixHV5m2g5pjPBQ/exec";
+
 // STATE
 const today = new Date(); today.setHours(0,0,0,0);
 let selectedDate = new Date(today);
@@ -485,17 +491,46 @@ const dateKey   = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'
 const fmtDate   = d => { const days=['Zo','Ma','Di','Wo','Do','Vr','Za'],months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']; return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]; };
 const initials  = n => n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 const avatarClr = n => { const c=['#1d3461','#d62828','#457b9d','#2d6a4f','#6c3483']; let h=0; for(const ch of n) h=(h<<5)-h+ch.charCodeAt(0); return c[Math.abs(h)%c.length]; };
-
-function save(push=true){
+function readCache(){
+  try{
+    return {
+      appointments: JSON.parse(localStorage.getItem('fmd_apts')||'[]'),
+      klanten: JSON.parse(localStorage.getItem('fmd_klanten')||'[]')
+    };
+  }catch(e){
+    return {appointments:[], klanten:[]};
+  }
+}
+function writeCache(){
   localStorage.setItem('fmd_apts',JSON.stringify(appointments));
   localStorage.setItem('fmd_klanten',JSON.stringify(klanten));
-  // Veiligheidscheck: nooit lege data naar Sheets pushen
-  if(push && syncEnabled && sheetsUrl && (appointments.length > 0 || klanten.length > 0)){
-    sheetsPost({action:'saveAll',appointments,klanten}).then(r=>{
-      if(r?.ok) setSyncStatus('ok','Gesynchroniseerd · '+new Date().toLocaleTimeString('nl'));
-      else setSyncStatus('error','Sync mislukt');
-    });
-  }
+}
+function normalizeAppointment(a){
+  const date=a?.date?String(a.date).trim().substring(0,10):'';
+  return {...a,date,startMin:Number(a.startMin)||0,duration:Number(a.duration)||60};
+}
+function normalizeKlant(k){
+  return {...k,apts:Number(k.apts)||0,lastDate:k.lastDate?String(k.lastDate).trim().substring(0,10):''};
+}
+function hideStartupOverlay(){
+  const overlay=document.getElementById('startup-overlay');
+  if(overlay) overlay.style.display='none';
+}
+
+
+function save(push=true){
+  writeCache();
+  if(!push || !syncEnabled || !hasLoadedRemote || isHydrating) return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async ()=>{
+    if(syncInFlight) return;
+    syncInFlight=true;
+    setSyncStatus('loading','Synchroniseren...');
+    const r=await sheetsPost({action:'saveAll',appointments,klanten});
+    syncInFlight=false;
+    if(r?.ok) setSyncStatus('ok','Gesynchroniseerd · '+new Date().toLocaleTimeString('nl'));
+    else setSyncStatus('error', r?.error ? 'Sync mislukt: '+String(r.error).slice(0,40) : 'Sync mislukt');
+  },350);
 }
 
 // NAVIGATION
@@ -715,17 +750,10 @@ function qaNext(){
 async function syncKlanten(){
   const btn = document.querySelector('[onclick="syncKlanten()"]');
   if(btn){ btn.textContent='⏳'; btn.style.opacity='.5'; }
-  const result = await sheetsGet();
-  if(result?.klanten){
-    klanten = result.klanten;
-    if(result.appointments) appointments = result.appointments.map(a=>{
-      const date=a.date?String(a.date).trim().substring(0,10):'';
-      return {...a,date,startMin:Number(a.startMin)||0,duration:Number(a.duration)||60};
-    });
-    save(false);
+  const ok = await loadFromSheets('klanten');
+  if(ok){
     renderKlanten('');
     showToast('Klanten bijgewerkt ✓');
-    setSyncStatus('ok', klanten.length+' klanten opgehaald');
   } else {
     showToast('Ophalen mislukt');
   }
@@ -735,24 +763,9 @@ async function syncKlanten(){
 async function refreshAgenda(){
   const btn=document.querySelector('.week-btn[onclick*="refreshAgenda"]');
   if(btn){btn.style.opacity='.5';}
-  setSyncStatus('loading','Ophalen...');
-  const result=await sheetsGet();
-  console.log('Sheets:',JSON.stringify(result)?.slice(0,300));
-  if(result?.appointments){
-    if(result.appointments.length>0){
-      appointments=result.appointments.map(a=>({...a,date:String(a.date).trim().substring(0,10),startMin:Number(a.startMin)||0,duration:Number(a.duration)||60}));
-      klanten=result.klanten||[];
-      save(false);
-      setSyncStatus('ok',appointments.length+' afspraken');
-      showToast('Agenda bijgewerkt \u2713');
-    } else {
-      setSyncStatus('ok','Sheet leeg');
-      showToast('Sheet bevat geen afspraken');
-    }
-  } else {
-    setSyncStatus('error',result?.error?.slice(0,50)||'Geen response');
-    showToast('Ophalen mislukt');
-  }
+  const ok = await loadFromSheets('agenda');
+  if(ok) showToast('Agenda bijgewerkt ✓');
+  else showToast('Ophalen mislukt');
   if(btn){btn.style.opacity='1';}
   renderAgenda();
 }
@@ -1124,8 +1137,8 @@ function renderNieuw(){
 
 // SETTINGS
 function initSettings(){
-  const urlEl=document.getElementById('sheets-url'); if(urlEl) urlEl.value=sheetsUrl||'';;
-  if(sheetsUrl) setSyncStatus('ok','Verbonden');
+  const urlEl=document.getElementById('sheets-url'); if(urlEl) urlEl.value=sheetsUrl;
+  if(syncEnabled) setSyncStatus(hasLoadedRemote ? 'ok' : 'loading', hasLoadedRemote ? 'Verbonden' : 'Verbinden...');
   blockedDays.forEach(dow=>{const btn=document.getElementById('bd-'+dow);if(btn)btn.classList.add('active');});
   const msgEl=document.getElementById('msg-bevestiging'); if(msgEl) msgEl.value=msgTemplate;
   const ejsEl=document.getElementById('ejs-pubkey'); if(ejsEl){document.getElementById('ejs-pubkey').value=ejsSettings.pubkey||'';document.getElementById('ejs-service').value=ejsSettings.service||'';document.getElementById('ejs-template').value=ejsSettings.template||'';if(ejsSettings.auto)document.getElementById('ejs-toggle').classList.add('on');}
@@ -1147,7 +1160,7 @@ function saveSettings(){
 }
 
 // GOOGLE SHEETS
-function getSheetsUrl(){ return document.getElementById('sheets-url')?.value.trim()||sheetsUrl; }
+function getSheetsUrl(){ return sheetsUrl; }
 function setSyncStatus(state,msg){
   const dot=document.getElementById('sync-dot'), label=document.getElementById('sync-label'); if(!dot||!label) return;
   const colors={ok:'#2d6a4f',error:'#d62828',loading:'#f77f00',off:'var(--muted)'};
@@ -1164,49 +1177,13 @@ async function sheetsPost(data){
 
 async function sheetsGet(){
   const url=getSheetsUrl(); if(!url) return null;
-  try{ const res=await fetch(url+'?action=getAll',{redirect:'follow'}); return await safeJson(res); }
+  try{ const res=await fetch(url+'?action=getAll',{redirect:'follow',cache:'no-store'}); return await safeJson(res); }
   catch(e){ console.error('sheetsGet:',e); return{error:e.message}; }
 }
 
 async function testSheetsConnection(){
-  const url=document.getElementById('sheets-url')?.value.trim();
-  if(!url){showToast('Vul eerst een Script URL in');return;}
-  sheetsUrl=url; localStorage.setItem('fmd_sheets_url',url); syncEnabled=true;
-  setSyncStatus('loading','Verbinden...'); showToast('Verbinden met Google Sheets...');
-
-  // Altijd eerst ophalen — nooit blindelings overschrijven
-  const result = await sheetsGet();
-  if(result?.error){
-    setSyncStatus('error','Verbinding mislukt: '+result.error.slice(0,40));
-    showToast('Verbinding mislukt. Check de URL.');
-    return;
-  }
-  if(result?.appointments){
-    if(result.appointments.length > 0){
-      // Sheets heeft data — laad die in
-      appointments = result.appointments.map(a=>{
-        const date=a.date?String(a.date).trim().substring(0,10):'';
-        return {...a,date,startMin:Number(a.startMin)||0,duration:Number(a.duration)||60};
-      });
-      klanten = result.klanten || [];
-      save(false);
-      renderAgenda();
-      setSyncStatus('ok',appointments.length+' afspraken opgehaald uit Sheets');
-      showToast('Verbonden! Data opgehaald \u2713');
-    } else if(appointments.length > 0 || klanten.length > 0){
-      // Sheets leeg, lokaal heeft data — push lokaal omhoog
-      const push = await sheetsPost({action:'saveAll',appointments,klanten});
-      if(push?.ok){setSyncStatus('ok','Verbonden en lokale data geüpload');showToast('Verbonden! Lokale data geüpload \u2713');}
-      else{setSyncStatus('error','Upload mislukt');showToast('Verbinding ok maar upload mislukt.');}
-    } else {
-      // Beide leeg
-      setSyncStatus('ok','Verbonden — nog geen data');
-      showToast('Verbonden \u2713');
-    }
-  } else {
-    setSyncStatus('error','Geen response van Sheets');
-    showToast('Verbinding mislukt. Check de URL.');
-  }
+  const ok = await loadFromSheets('manual');
+  showToast(ok ? 'Verbonden en gesynchroniseerd ✓' : 'Verbinding mislukt of cache geladen');
 }
 
 // LOGO
@@ -1222,10 +1199,47 @@ function showToast(msg){
   document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
 }
 
+async function loadFromSheets(source='init'){
+  setSyncStatus('loading', source==='init' ? 'Gegevens laden...' : 'Ophalen...');
+  const result=await sheetsGet();
+  if(result?.appointments){
+    isHydrating=true;
+    appointments=(result.appointments||[]).map(normalizeAppointment);
+    klanten=(result.klanten||[]).map(normalizeKlant);
+    writeCache();
+    hasLoadedRemote=true;
+    isHydrating=false;
+    setSyncStatus('ok',appointments.length+' afspraken geladen');
+    populateKlantDropdown();
+    return true;
+  }
+  const cache=readCache();
+  if(cache.appointments.length || cache.klanten.length){
+    appointments=cache.appointments.map(normalizeAppointment);
+    klanten=cache.klanten.map(normalizeKlant);
+    setSyncStatus('error','Offline cache actief');
+    return false;
+  }
+  setSyncStatus('error',result?.error ? 'Sync fout: '+String(result.error).slice(0,40) : 'Geen data ontvangen');
+  return false;
+}
+
 // INIT
-const savedLogo=localStorage.getItem('fmd_logo'); if(savedLogo) document.getElementById('logo-wrap').innerHTML='<img src="'+savedLogo+'" style="width:100%;height:100%;object-fit:cover">';
-if(sheetsUrl) setSyncStatus('ok','Verbonden');
-renderAgenda();
+async function initApp(){
+  const savedLogo=localStorage.getItem('fmd_logo');
+  if(savedLogo) document.getElementById('logo-wrap').innerHTML='<img src="'+savedLogo+'" style="width:100%;height:100%;object-fit:cover">';
+  const urlEl=document.getElementById('sheets-url');
+  if(urlEl) urlEl.value=SHEETS_URL;
+  const ok=await loadFromSheets('init');
+  if(!ok){
+    const cache=readCache();
+    appointments=cache.appointments.map(normalizeAppointment);
+    klanten=cache.klanten.map(normalizeKlant);
+  }
+  renderAgenda();
+  hideStartupOverlay();
+}
+document.addEventListener('DOMContentLoaded', initApp);
 </script>
 <!-- QUICK ADD MODAL -->
 <div id="quick-overlay" onclick="if(event.target===this)closeQuickAdd()" style="display:none;position:fixed;inset:0;background:rgba(29,52,97,.55);z-index:300;backdrop-filter:blur(4px)">
