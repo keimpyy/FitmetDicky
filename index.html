@@ -198,6 +198,20 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
 .detail-row:last-child{border-bottom:none}
 .detail-label{font-size:13px;color:var(--muted)}
 .detail-value{font-size:13px;font-weight:600;text-align:right;max-width:200px}
+
+/* AGENDA ACTIONS */
+.week-actions{display:flex;align-items:center;gap:6px}
+.week-add-btn{background:var(--red);color:white;border:none;border-radius:10px;height:34px;padding:0 12px;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(214,40,40,.18)}
+.week-add-btn .plus{font-size:18px;line-height:1;font-weight:400}
+#fab-btn{position:fixed;left:16px;right:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:240;height:52px;padding:0 18px;border-radius:999px;background:var(--red);color:white;border:none;font-size:15px;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(214,40,40,.28);display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-family:"DM Sans",sans-serif}
+#fab-btn .fab-plus{font-size:24px;font-weight:300;line-height:1}
+@media(min-width:768px){
+  #fab-btn{display:none!important}
+}
+@media(max-width:767px){
+  .week-add-btn{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -224,8 +238,11 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
           <div class="week-nav">
             <button class="week-btn" onclick="shiftWeek(-1)">&#8249;</button>
             <div class="week-label" id="week-label"></div>
-            <button class="week-btn" onclick="shiftWeek(1)">&#8250;</button>
-            <button class="week-btn" onclick="refreshAgenda()" title="Ververs" style="margin-left:6px;font-size:14px">&#8635;</button>
+            <div class="week-actions">
+              <button class="week-btn" onclick="shiftWeek(1)">&#8250;</button>
+              <button class="week-btn" onclick="refreshAgenda()" title="Ververs" style="font-size:14px">&#8635;</button>
+              <button class="week-add-btn" onclick="openQuickAdd()" title="Nieuwe afspraak"><span class="plus">+</span><span>Afspraak</span></button>
+            </div>
           </div>
           <div class="week-days" id="week-days"></div>
         </div>
@@ -237,11 +254,10 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
         </div>
       </div>
       <!-- FAB: snelle afspraak -->
-      <button onclick="openQuickAdd()" id="fab-btn"
-        style="position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+24px);right:20px;z-index:200;
-               width:56px;height:56px;border-radius:50%;background:var(--red);color:white;border:none;
-               font-size:28px;line-height:1;cursor:pointer;box-shadow:0 4px 20px rgba(214,40,40,.4);
-               display:flex;align-items:center;justify-content:center;font-weight:300">+</button>
+      <button onclick="openQuickAdd()" id="fab-btn" aria-label="Nieuwe afspraak">
+        <span class="fab-plus">+</span>
+        <span>Afspraak</span>
+      </button>
     </div>
 
     <!-- NIEUW -->
@@ -272,11 +288,11 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Voornaam</label>
-                <input class="form-input" id="f-voornaam" type="text" placeholder="Voornaam" autocomplete="off" oninput="updateMailPreview();validateForm()">
+                <input class="form-input" id="f-voornaam" type="text" placeholder="Voornaam" autocomplete="off" oninput="validateForm()">
               </div>
               <div class="form-group">
                 <label class="form-label">Achternaam</label>
-                <input class="form-input" id="f-achternaam" type="text" placeholder="Achternaam" autocomplete="off" oninput="updateMailPreview()">
+                <input class="form-input" id="f-achternaam" type="text" placeholder="Achternaam" autocomplete="off">
               </div>
             </div>
             <div class="form-row">
@@ -296,11 +312,11 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Datum</label>
-              <input class="form-input" id="f-datum" type="date" onchange="updateAvailability();updateMailPreview()">
+              <input class="form-input" id="f-datum" type="date" onchange="updateAvailability()">
             </div>
             <div class="form-group">
               <label class="form-label">Behandeling</label>
-              <select class="form-select" id="f-type" onchange="updateAvailability();updateMailPreview()">
+              <select class="form-select" id="f-type" onchange="updateAvailability()">
                 <option value="60">Massage 60 min</option>
                 <option value="90">Massage 90 min</option>
                 <option value="30">Consult 30 min</option>
@@ -316,11 +332,6 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
             <label class="form-label">Notitie (optioneel)</label>
             <textarea class="form-textarea" id="f-notitie" placeholder="Bijv. rugklachten, voorkeur..."></textarea>
           </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-title">Bevestigingsmail preview</div>
-          <div id="mail-preview" style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;color:var(--text)"></div>
-          <div style="font-size:11px;color:var(--muted);margin-top:6px">Tekst aanpassen via Instellingen</div>
         </div>
         <div id="form-hint"></div>
         <button class="submit-btn" id="submit-btn" onclick="saveAppointment()" disabled>Afspraak inplannen</button>
@@ -370,7 +381,7 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
             <input class="form-input" id="sheets-url" type="url" placeholder="https://script.google.com/macros/s/..." readonly>
           </div>
           <div style="display:flex;gap:8px;margin-top:4px">
-            <button onclick="testSheetsConnection()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px">Verbinden &amp; synchroniseren</button>
+            <button onclick="refreshAgenda()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px" disabled>Sheets gekoppeld</button>
             <button onclick="refreshAgenda()" style="width:100%;background:var(--off);color:var(--blue);border:1.5px solid var(--blue);border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">&#8635; Haal alle data op</button>
           </div>
           <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;margin-top:12px;font-size:12px;line-height:1.8;color:#78350f">
@@ -408,7 +419,11 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
           <div class="settings-title">Standaard berichten</div>
           <div class="form-group">
             <label class="form-label">Bevestigingsbericht</label>
-            <textarea class="form-textarea" id="msg-bevestiging" style="font-size:14px" oninput="msgTemplate=this.value"></textarea>
+            <textarea class="form-textarea" id="msg-bevestiging" style="font-size:14px" oninput="msgTemplate=this.value;updateSettingsPreview()"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preview</label>
+            <div id="msg-preview-settings" style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;color:var(--text)"></div>
           </div>
           <button onclick="saveSettings()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer">Opslaan</button>
         </div>
@@ -479,8 +494,12 @@ let appointments = JSON.parse(localStorage.getItem('fmd_apts')||'[]');
 let klanten      = JSON.parse(localStorage.getItem('fmd_klanten')||'[]');
 let blockedDays  = JSON.parse(localStorage.getItem('fmd_blocked_days')||'[]');
 let ejsSettings  = JSON.parse(localStorage.getItem('fmd_ejs')||'{"pubkey":"","service":"","template":"","auto":false}');
-let sheetsUrl    = localStorage.getItem('fmd_sheets_url')||'';
-let syncEnabled  = !!sheetsUrl;
+let sheetsUrl    = SHEETS_URL;
+let syncEnabled  = true;
+let saveTimer = null;
+let syncInFlight = false;
+let hasLoadedRemote = false;
+let isHydrating = false;
 let msgTemplate  = localStorage.getItem('fmd_msg') || 'Beste [voornaam],\\n\\nJe afspraak bij Fit met Dicky is bevestigd.\\n\\nDatum:       [datum]\\nTijd:        [tijd]\\nBehandeling: [behandeling]\\n\\nTot dan!\\nDicky';
 
 // HELPERS
@@ -798,7 +817,6 @@ function selectTime(min,el){
   document.querySelectorAll('.avail-slot.free').forEach(s=>s.classList.remove('selected'));
   el.classList.add('selected');
   validateForm();
-  updateMailPreview();
 }
 
 // VALIDATION
@@ -828,17 +846,10 @@ function buildMailBody(apt){
   return msgTemplate.replace(/\\[voornaam\\]/g,apt.voornaam||apt.name.split(' ')[0]).replace(/\\[achternaam\\]/g,apt.achternaam||'').replace(/\\[naam\\]/g,apt.name).replace(/\\[datum\\]/g,dateStr).replace(/\\[tijd\\]/g,tijdStr).replace(/\\[behandeling\\]/g,apt.treatment||'Massage');
 }
 
-function updateMailPreview(){
-  const p=document.getElementById('mail-preview'); if(!p) return;
-  const vn=document.getElementById('f-voornaam')?.value.trim()||'Klant';
-  const an=document.getElementById('f-achternaam')?.value.trim()||'';
-  const datum=document.getElementById('f-datum')?.value;
-  const typeEl=document.getElementById('f-type');
-  const treatment=typeEl?.options[typeEl.selectedIndex]?.text||'Massage';
-  const dateStr=datum?fmtDate(parseDate(datum)):'[datum]';
-  const dur=parseInt(document.getElementById('f-type')?.value||'60');
-  const timeStr=selectedTime!==null?(fmtTime(selectedTime)+' - '+fmtTime(selectedTime+dur)):'[tijd]';
-  p.textContent=msgTemplate.replace(/\\[voornaam\\]/g,vn).replace(/\\[achternaam\\]/g,an).replace(/\\[naam\\]/g,(vn+' '+an).trim()).replace(/\\[datum\\]/g,dateStr).replace(/\\[tijd\\]/g,timeStr).replace(/\\[behandeling\\]/g,treatment);
+function updateSettingsPreview(){
+  const p=document.getElementById('msg-preview-settings'); if(!p) return;
+  const demo={voornaam:'Sanne', achternaam:'Jansen', name:'Sanne Jansen', date:dateKey(selectedDate), startMin:10*60, duration:60, treatment:'Massage 60 min'};
+  p.textContent=buildMailBody(demo);
 }
 
 // SAVE APPOINTMENT
@@ -997,7 +1008,7 @@ function selectKlant(id){
     ['f-voornaam','f-achternaam','f-tel','f-email'].forEach(i=>{
       const el=document.getElementById(i); if(el) el.value='';
     });
-    updateMailPreview(); validateForm();
+    validateForm();
     return;
   }
 
@@ -1017,7 +1028,7 @@ function selectKlant(id){
   velden.style.display  = 'none';
   summary.style.display = '';
 
-  updateMailPreview(); validateForm();
+  validateForm();
 }
 
 function clearKlantSelect(){
@@ -1043,27 +1054,31 @@ function saveNewKlant(){
 
 function renderKlanten(q){
   const list=document.getElementById('klant-list-items');
-  const filtered=klanten.filter(k=>!q||k.name.toLowerCase().includes(q.toLowerCase()));
-  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px">👤</div><div style="font-size:14px">'+(q?'Geen resultaten':'Nog geen klanten')+'</div></div>';return;}
-  list.innerHTML=filtered.map(k=>`
+  const term=(q||'').toLowerCase();
+  const rows=klanten.map((k,index)=>({k,index})).filter(({k})=>!term || String(k.name||'').toLowerCase().includes(term));
+  if(!rows.length){
+    list.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px">👤</div><div style="font-size:14px">'+(q?'Geen resultaten':'Nog geen klanten')+'</div></div>';
+    return;
+  }
+  list.innerHTML=rows.map(({k,index})=>`
     <div class="klant-card">
-      <div class="klant-avatar" style="background:${avatarClr(k.name)}">${initials(k.name)}</div>
+      <div class="klant-avatar" style="background:${avatarClr(k.name||'Klant')}">${initials(k.name||'Klant')}</div>
       <div style="flex:1;min-width:0">
-        <div class="klant-name">${k.voornaam||k.name} ${k.achternaam||''}</div>
+        <div class="klant-name">${k.voornaam||k.name||''} ${k.achternaam||''}</div>
         <div class="klant-meta">${k.tel||'&#8212;'} · ${k.email||'&#8212;'}</div>
         <div class="klant-apts">${(k.apts||0)===1?'1 afspraak':(k.apts||0)+' afspraken'} · laatste: ${k.lastDate?fmtDate(parseDate(k.lastDate)):'&#8212;'}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
-        <button onclick="openEditKlant('${k.id}',event)" style="background:var(--off);border:1px solid var(--border);color:var(--blue);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Wijzig</button>
-        <button onclick="deleteKlant('${k.id}',event)" style="background:#fde8e8;border:none;color:var(--red);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Verwijder</button>
+        <button onclick="openEditKlantByIndex(${index},event)" style="background:var(--off);border:1px solid var(--border);color:var(--blue);border-radius:10px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Wijzig</button>
+        <button onclick="deleteKlantByIndex(${index},event)" style="background:#fde8e8;border:none;color:var(--red);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Verwijder</button>
       </div>
     </div>`).join('');
 }
 
-function openEditKlant(id, e){
-  e.stopPropagation();
-  const k = klanten.find(c=>c.id===id); if(!k) return;
-  // Build modal
+function openEditKlantByIndex(index, e){
+  if(e) e.stopPropagation();
+  const k = klanten[index]; if(!k) return;
+  const esc = (v='') => String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
   const overlay = document.createElement('div');
   overlay.id = 'edit-klant-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(29,52,97,.5);z-index:400;display:flex;align-items:flex-end;backdrop-filter:blur(4px)';
@@ -1078,52 +1093,68 @@ function openEditKlant(id, e){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div>
             <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Voornaam</div>
-            <input id="ek-voornaam" class="form-input" type="text" value="${k.voornaam||k.name.split(' ')[0]||''}" style="margin-bottom:0">
+            <input id="ek-voornaam" class="form-input" type="text" value="${esc(k.voornaam||String(k.name||'').split(' ')[0]||'')}" style="margin-bottom:0">
           </div>
           <div>
             <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Achternaam</div>
-            <input id="ek-achternaam" class="form-input" type="text" value="${k.achternaam||k.name.split(' ').slice(1).join(' ')||''}" style="margin-bottom:0">
+            <input id="ek-achternaam" class="form-input" type="text" value="${esc(k.achternaam||String(k.name||'').split(' ').slice(1).join(' ')||'')}" style="margin-bottom:0">
           </div>
         </div>
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Telefoon</div>
-          <input id="ek-tel" class="form-input" type="tel" value="${k.tel||''}" style="margin-bottom:0">
+          <input id="ek-tel" class="form-input" type="tel" value="${esc(k.tel||'')}" style="margin-bottom:0">
         </div>
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">E-mail</div>
-          <input id="ek-email" class="form-input" type="email" value="${k.email||''}" style="margin-bottom:0">
+          <input id="ek-email" class="form-input" type="email" value="${esc(k.email||'')}" style="margin-bottom:0">
         </div>
-        <button onclick="saveEditKlant('${k.id}')"
-          style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">
+        <button onclick="saveEditKlantByIndex(${index})" style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">
           Opslaan
         </button>
       </div>
     </div>`;
-  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  overlay.addEventListener('click', ev => { if(ev.target===overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
 
-function saveEditKlant(id){
-  const k = klanten.find(c=>c.id===id); if(!k) return;
+function saveEditKlantByIndex(index){
+  const k = klanten[index]; if(!k) return;
+  const old = {...k};
   const vn = document.getElementById('ek-voornaam').value.trim();
   const an = document.getElementById('ek-achternaam').value.trim();
   if(!vn){ showToast('Voornaam is verplicht'); return; }
-  k.voornaam   = vn;
+  k.voornaam = vn;
   k.achternaam = an;
-  k.name       = (vn+' '+an).trim();
-  k.tel        = document.getElementById('ek-tel').value.trim();
-  k.email      = document.getElementById('ek-email').value.trim();
+  k.name = (vn+' '+an).trim();
+  k.tel = document.getElementById('ek-tel').value.trim();
+  k.email = document.getElementById('ek-email').value.trim();
+
+  appointments = appointments.map(a=>{
+    const sameByEmail = old.email && a.email && String(a.email).trim().toLowerCase()===String(old.email).trim().toLowerCase();
+    const sameByTel = old.tel && a.tel && String(a.tel).replace(/\D/g,'')===String(old.tel).replace(/\D/g,'');
+    const sameByName = String(a.name||'').trim()===String(old.name||'').trim();
+    if(sameByEmail || sameByTel || sameByName){
+      return {...a, name:k.name, voornaam:k.voornaam, achternaam:k.achternaam, tel:k.tel, email:k.email};
+    }
+    return a;
+  });
+
   save();
   document.getElementById('edit-klant-overlay')?.remove();
   renderKlanten(document.querySelector('.klant-list input')?.value||'');
+  populateKlantDropdown();
   showToast(k.name+' bijgewerkt!');
 }
 
-function deleteKlant(id,e){
-  e.stopPropagation();
+function deleteKlantByIndex(index,e){
+  if(e) e.stopPropagation();
+  const k=klanten[index];
+  if(!k) return;
   if(!confirm('Klant verwijderen?')) return;
-  klanten=klanten.filter(k=>k.id!==id); save();
+  klanten.splice(index,1);
+  save();
   renderKlanten(document.querySelector('.klant-list input')?.value||'');
+  populateKlantDropdown();
   showToast('Klant verwijderd.');
 }
 
@@ -1132,7 +1163,7 @@ function renderNieuw(){
   const d=new Date(); d.setHours(0,0,0,0);
   document.getElementById('f-datum').min=dateKey(d);
   document.getElementById('f-datum').value=dateKey(selectedDate);
-  populateKlantDropdown(); updateAvailability(); updateMailPreview(); validateForm();
+  populateKlantDropdown(); updateAvailability(); validateForm();
 }
 
 // SETTINGS
@@ -1141,6 +1172,7 @@ function initSettings(){
   if(syncEnabled) setSyncStatus(hasLoadedRemote ? 'ok' : 'loading', hasLoadedRemote ? 'Verbonden' : 'Verbinden...');
   blockedDays.forEach(dow=>{const btn=document.getElementById('bd-'+dow);if(btn)btn.classList.add('active');});
   const msgEl=document.getElementById('msg-bevestiging'); if(msgEl) msgEl.value=msgTemplate;
+  updateSettingsPreview();
   const ejsEl=document.getElementById('ejs-pubkey'); if(ejsEl){document.getElementById('ejs-pubkey').value=ejsSettings.pubkey||'';document.getElementById('ejs-service').value=ejsSettings.service||'';document.getElementById('ejs-template').value=ejsSettings.template||'';if(ejsSettings.auto)document.getElementById('ejs-toggle').classList.add('on');}
 }
 
@@ -1156,11 +1188,12 @@ function saveSettings(){
   ejsSettings={pubkey:document.getElementById('ejs-pubkey')?.value.trim()||'',service:document.getElementById('ejs-service')?.value.trim()||'',template:document.getElementById('ejs-template')?.value.trim()||'',auto:document.getElementById('ejs-toggle')?.classList.contains('on')||false};
   localStorage.setItem('fmd_ejs',JSON.stringify(ejsSettings));
   localStorage.setItem('fmd_blocked_days',JSON.stringify(blockedDays));
+  updateSettingsPreview();
   showToast('Instellingen opgeslagen!');
 }
 
 // GOOGLE SHEETS
-function getSheetsUrl(){ return sheetsUrl; }
+function getSheetsUrl(){ return SHEETS_URL; }
 function setSyncStatus(state,msg){
   const dot=document.getElementById('sync-dot'), label=document.getElementById('sync-label'); if(!dot||!label) return;
   const colors={ok:'#2d6a4f',error:'#d62828',loading:'#f77f00',off:'var(--muted)'};
@@ -1182,8 +1215,8 @@ async function sheetsGet(){
 }
 
 async function testSheetsConnection(){
-  const ok = await loadFromSheets('manual');
-  showToast(ok ? 'Verbonden en gesynchroniseerd ✓' : 'Verbinding mislukt of cache geladen');
+  showToast('Sheets is al gekoppeld.');
+  return true;
 }
 
 // LOGO
