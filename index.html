@@ -9,8 +9,8 @@
 <meta name="theme-color" content="#ffffff">
 <title>Fit met Dicky</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -1735,7 +1735,7 @@ function showToast(msg){
 // INIT
 function registerServiceWorker(){
   if(!('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('/sw.js').catch(err=>console.warn('Service worker registratie mislukt:', err));
+  navigator.serviceWorker.register('sw.js').catch(err=>console.warn('Service worker registratie mislukt:', err));
 }
 
 async function initApp(){
