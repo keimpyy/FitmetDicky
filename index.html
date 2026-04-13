@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Fit met Dicky">
 <meta name="theme-color" content="#ffffff">
 <title>Fit met Dicky</title>
+<link rel="manifest" href="manifest.webmanifest">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -176,8 +177,6 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
 .toggle.on{background:var(--red)}
 .toggle::after{content:"";position:absolute;width:20px;height:20px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .toggle.on::after{transform:translateX(18px)}
-.blocktime-btn{background:var(--off);border:1.5px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .15s;font-family:"DM Sans",sans-serif}
-.blocktime-btn.active{background:var(--blue);border-color:var(--blue);color:white}
 
 /* MODAL (afspraak detail) */
 .overlay{display:none;position:fixed;inset:0;background:rgba(29,52,97,.5);z-index:200;align-items:flex-end;backdrop-filter:blur(3px)}
@@ -252,7 +251,84 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
   .settings-section{padding:16px 14px;border-radius:16px}
 }
 
+
+
+/* SETTINGS CLEAN */
+.settings-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:18px 16px;box-shadow:var(--shadow)}
+.settings-kicker{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:6px}
+.settings-heading{font-family:"Playfair Display",serif;font-size:24px;font-weight:800;color:var(--blue);line-height:1.05}
+.settings-subtitle{font-size:13px;line-height:1.5;color:var(--muted);margin-top:6px}
+.settings-badge{font-size:12px;font-weight:800;color:var(--red);background:#fde8e8;border:1px solid #f7cccc;border-radius:8px;padding:8px 10px;white-space:nowrap}
+.settings-status-row{display:flex;align-items:center;gap:10px;background:var(--off);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px}
+.settings-status-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.settings-status-label{color:var(--muted)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--off);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:8px}
+.settings-row-main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.settings-row-label{font-size:15px;font-weight:700;color:var(--text)}
+.settings-row-note{font-size:12px;color:var(--muted);line-height:1.4}
+.settings-value{font-size:12px;font-weight:800;color:var(--blue);flex-shrink:0}
+/* CLOUD ACCOUNT */
+.cloud-auth-box{background:var(--off);border:1.5px solid var(--border);border-radius:16px;padding:14px;margin-top:10px}
+.cloud-auth-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.cloud-button-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cloud-button-row.single{grid-template-columns:1fr}
+.cloud-btn{background:var(--blue);color:white;border:none;border-radius:8px;padding:12px 14px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+.cloud-btn.secondary{background:var(--off);color:var(--blue);border:1.5px solid var(--blue)}
+.cloud-btn.danger{background:var(--red)}
+.cloud-btn:disabled{opacity:.5;cursor:not-allowed}
+.cloud-account-line{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px;word-break:break-word}
+.cloud-note{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
+.cloud-mini-action{background:none;border:none;color:var(--blue);font:inherit;font-size:12px;font-weight:700;padding:0;margin-top:8px;cursor:pointer}
+
+
+/* HEADER SETTINGS + TREATMENTS */
+.settings-header{display:flex!important;align-items:center;justify-content:center;padding-right:14px}
+.settings-gear-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--blue);font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);font-family:"DM Sans",sans-serif;transition:background .15s,color .15s,transform .15s}
+.settings-gear-btn:hover,.settings-gear-btn.active{background:var(--blue);color:white;transform:translateY(-1px)}
+.treatments-wrap{max-width:780px}
+.treatment-form-grid{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:12px;align-items:end}
+.treatment-save-btn{width:100%;margin-top:4px}
+.treatment-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--off);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.treatment-main{min-width:0}
+.treatment-name{font-size:15px;font-weight:800;color:var(--blue);line-height:1.2}
+.treatment-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.nav-label-short{display:none}
+@media(max-width:767px){
+  .app-header{position:sticky;padding-top:calc(env(safe-area-inset-top,0px) + 4px)}
+  .app-header .brand{display:none}
+  .app-header .nav{padding-right:54px}
+  .settings-header{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;height:40px;padding-right:0;z-index:2}
+  .settings-gear-btn{width:38px;height:38px;border-radius:10px;font-size:19px}
+  .nav-label-long{display:none}
+  .nav-label-short{display:inline}
+  .treatment-form-grid{grid-template-columns:1fr}
+  .treatment-row{align-items:flex-start;flex-direction:column}
+  .treatment-row .klant-btn{width:100%}
+}
+/* AGENDA MOTION */
+@keyframes dayChipPop{0%{transform:scale(.94)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes dayPanelIn{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes aptCardIn{0%{opacity:0;transform:translateY(8px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.day-chip{will-change:transform,box-shadow}
+.day-chip:active{transform:scale(.94)}
+.day-chip.selected{animation:dayChipPop .28s ease-out;box-shadow:0 8px 18px rgba(29,52,97,.18)}
+.day-chip.today{box-shadow:0 8px 18px rgba(214,40,40,.18)}
+.day-title.day-switching{animation:dayPanelIn .24s ease-out both}
+#day-slots.day-switching{animation:dayPanelIn .28s ease-out both}
+#day-slots.day-switching .time-slot{animation:aptCardIn .28s ease-out both}
+#day-slots.day-switching .time-slot:nth-child(2){animation-delay:.03s}
+#day-slots.day-switching .time-slot:nth-child(3){animation-delay:.06s}
+#day-slots.day-switching .time-slot:nth-child(4){animation-delay:.09s}
+#day-slots.day-switching .time-slot:nth-child(n+5){animation-delay:.12s}
+@media(max-width:767px){
+  #fab-btn{left:auto;right:calc(env(safe-area-inset-right,0px) + 16px);bottom:calc(env(safe-area-inset-bottom,0px) + 18px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .day-chip.selected,.day-title.day-switching,#day-slots.day-switching,#day-slots.day-switching .time-slot{animation:none!important}
+  .day-chip:active{transform:none}
+}
 </style>
+<link rel="stylesheet" href="styles/fmd-polish.css?v=20260413d">
 </head>
 <body>
 <div class="shell">
@@ -264,10 +340,10 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
       <button class="nav-tab active" data-tab="agenda" onclick="goTab('agenda')">Agenda</button>
       <button class="nav-tab" data-tab="nieuw" onclick="goTab('nieuw')">Nieuw</button>
       <button class="nav-tab" data-tab="klanten" onclick="goTab('klanten')">Klanten</button>
-      <button class="nav-tab" data-tab="instellingen" onclick="goTab('instellingen')">Instellingen</button>
+      <button class="nav-tab" data-tab="behandelingen" onclick="goTab('behandelingen')"><span class="nav-label-long">Behandelingen</span><span class="nav-label-short">Beh.</span></button>
     </div><!-- /nav -->
-    <div class="header-right">
-      <button class="header-action" onclick="goTab('nieuw')">+ Afspraak</button>
+    <div class="header-right settings-header">
+      <button class="settings-gear-btn" onclick="goTab('instellingen')" aria-label="Instellingen" title="Instellingen">&#9881;</button>
     </div>
   </div><!-- /app-header -->
 
@@ -280,7 +356,7 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
             <div class="week-label" id="week-label"></div>
             <div class="week-actions">
               <button class="week-btn" onclick="shiftWeek(1)">&#8250;</button>
-              <button class="week-btn" onclick="refreshAgenda()" title="Ververs" style="font-size:14px">&#8635;</button>
+              <button class="week-btn" onclick="refreshAgenda()" title="Cloud ophalen" style="font-size:14px">&#8635;</button>
               <button class="week-add-btn" onclick="openQuickAdd()" title="Nieuwe afspraak"><span class="plus">+</span><span>Afspraak</span></button>
             </div>
           </div>
@@ -356,12 +432,7 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
             </div>
             <div class="form-group">
               <label class="form-label">Behandeling</label>
-              <select class="form-select" id="f-type" onchange="updateAvailability()">
-                <option value="60">Massage 60 min</option>
-                <option value="90">Massage 90 min</option>
-                <option value="30">Consult 30 min</option>
-                <option value="120">Massage 2 uur</option>
-              </select>
+              <select class="form-select" id="f-type" onchange="updateAvailability()"></select>
             </div>
           </div>
           <div class="form-group">
@@ -386,8 +457,6 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
             <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px">&#128269;</span>
             <input type="text" style="width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px 11px 40px;font-size:16px;font-family:DM Sans,sans-serif;outline:none;color:var(--text)" placeholder="Zoek klant..." oninput="renderKlanten(this.value)">
           </div>
-          <button onclick="syncKlanten()" title="Ververs klanten"
-            style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;flex-shrink:0;color:var(--blue)">&#8635;</button>
           <button id="klant-add-btn" onclick="toggleKlantForm()" style="background:var(--red);color:white;border:none;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;white-space:nowrap">+ Klant</button>
         </div>
         <div id="klant-form" style="display:none;background:var(--off);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px">
@@ -407,79 +476,93 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
       </div>
     </div>
 
+    <!-- BEHANDELINGEN -->
+    <div id="v-behandelingen" class="view">
+      <div class="settings-wrap treatments-wrap">
+        <div class="settings-hero">
+          <div>
+            <div class="settings-kicker">Behandelingen</div>
+            <div class="settings-heading">Tarieven en duur</div>
+            <div class="settings-subtitle">Maak de behandelingen aan die je direct in de agenda wilt kiezen.</div>
+          </div>
+          <div class="settings-badge">Ex btw</div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">Nieuwe behandeling</div>
+          <div class="treatment-form-grid">
+            <div class="form-group">
+              <label class="form-label">Naam</label>
+              <input class="form-input" id="bh-naam" type="text" placeholder="Bijv. Personal training" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duur in minuten</label>
+              <input class="form-input" id="bh-duur" type="number" min="5" step="5" value="60">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Uurtarief ex btw</label>
+              <input class="form-input" id="bh-uurtarief" type="number" min="0" step="0.5" value="50">
+            </div>
+          </div>
+          <button class="cloud-btn treatment-save-btn" onclick="saveBehandeling()">Behandeling toevoegen</button>
+          <div class="cloud-note">Nieuwe afspraken nemen de duur en het tarief van de gekozen behandeling over.</div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">Alle behandelingen</div>
+          <div id="behandeling-list"></div>
+        </div>
+      </div>
+    </div>
     <!-- INSTELLINGEN -->
     <div id="v-instellingen" class="view">
       <div class="settings-wrap">
+        <div class="settings-hero">
+          <div>
+            <div class="settings-kicker">Instellingen</div>
+            <div class="settings-heading">App voorkeuren</div>
+            <div class="settings-subtitle">Cloud, installatie en beheer voor de planning.</div>
+          </div>
+          <div class="settings-badge">Fit met Dicky</div>
+        </div>
+
         <div class="settings-section">
-          <div class="settings-title">Google Sheets Synchronisatie</div>
-          <div id="sync-status" style="display:flex;align-items:center;gap:10px;background:var(--off);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px">
-            <div id="sync-dot" style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
-            <div id="sync-label" style="color:var(--muted)">Niet verbonden</div>
+          <div class="settings-title">Account</div>
+          <div id="cloud-status" class="settings-status-row">
+            <div id="cloud-dot" class="settings-status-dot"></div>
+            <div id="cloud-label" class="settings-status-label">Niet ingelogd</div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Script URL</label>
-            <input class="form-input" id="sheets-url" type="url" placeholder="https://script.google.com/macros/s/..." readonly style="background:#f4f5f7;color:var(--muted)">
-          </div>
-          <div style="display:flex;gap:8px;margin-top:4px">
-            <button onclick="refreshAgenda()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px" disabled>Sheets gekoppeld</button>
-            <button onclick="refreshAgenda()" style="width:100%;background:var(--off);color:var(--blue);border:1.5px solid var(--blue);border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">&#8635; Haal alle data op</button>
-          </div>
-          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;margin-top:12px;font-size:12px;line-height:1.8;color:#78350f">
-            <strong>Eenmalig instellen:</strong><br>
-            1. Ga naar <strong>script.google.com</strong> &#8594; Nieuw project<br>
-            2. Plak inhoud van <strong>FitMetDicky_Script.gs</strong><br>
-            3. Vervang <code>JOUW_SHEET_ID_HIER</code> door jouw Google Sheet ID<br>
-            &nbsp;&nbsp;&nbsp;<em>(URL: docs.google.com/spreadsheets/d/<strong>ID</strong>/edit)</em><br>
-            4. Implementeren &#8594; Nieuwe implementatie &#8594; Web-app<br>
-            &nbsp;&nbsp;&nbsp;Uitvoeren als: <em>Ikzelf</em> &#8226; Toegang: <em>Iedereen</em><br>
-            5. Kopieer URL &#8594; plak hierboven &#8594; Verbinden &amp; sync
+          <div class="cloud-auth-box">
+            <div class="cloud-account-line" id="cloud-email">Owner login voor de Fit met Dicky planning.</div>
+            <div class="cloud-auth-row" id="cloud-auth-fields">
+              <input class="form-input" id="cloud-email-input" type="email" placeholder="E-mail" autocomplete="email">
+              <input class="form-input" id="cloud-password-input" type="password" placeholder="Wachtwoord" autocomplete="current-password">
+            </div>
+            <div class="cloud-button-row single">
+              <button class="cloud-btn" id="cloud-login-btn" onclick="cloudLogin('signin')">Inloggen</button>
+            </div>
+            <button class="cloud-mini-action" id="cloud-refresh-btn" onclick="loadFromCloud()" style="display:none">Cloud opnieuw ophalen</button>
+            <button class="cloud-btn danger" id="cloud-logout-btn" onclick="cloudLogout()" style="display:none;width:100%;margin-top:8px">Uitloggen</button>
+            <div class="cloud-note">Alleen de eigenaar hoort hier in te loggen. Wijzigingen worden automatisch opgeslagen.</div>
           </div>
         </div>
+
         <div class="settings-section">
-          <div class="settings-title">Praktijk</div>
-          <div class="setting-row">
-            <div><div class="setting-label">Logo uploaden</div><div class="setting-sub">Verschijnt in de header</div></div>
-            <button onclick="document.getElementById('logo-upload').click()" style="background:var(--blue);color:white;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Upload</button>
-            <input type="file" id="logo-upload" accept="image/*" style="display:none" onchange="uploadLogo(event)">
+          <div class="settings-title">App</div>
+          <div class="settings-row static">
+            <span class="settings-row-main">
+              <span class="settings-row-label">Opslag</span>
+              <span class="settings-row-note">Klanten, afspraken en instellingen worden in Supabase bewaard.</span>
+            </span>
+            <span class="settings-value">Actief</span>
           </div>
-        </div>
-        <div class="settings-section">
-          <div class="settings-title">Vaste blokkades</div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-            <button class="blocktime-btn" id="bd-1" onclick="toggleBlockDay(1,this)">Ma</button>
-            <button class="blocktime-btn" id="bd-2" onclick="toggleBlockDay(2,this)">Di</button>
-            <button class="blocktime-btn" id="bd-3" onclick="toggleBlockDay(3,this)">Wo</button>
-            <button class="blocktime-btn" id="bd-4" onclick="toggleBlockDay(4,this)">Do</button>
-            <button class="blocktime-btn" id="bd-5" onclick="toggleBlockDay(5,this)">Vr</button>
-            <button class="blocktime-btn" id="bd-6" onclick="toggleBlockDay(6,this)">Za</button>
-            <button class="blocktime-btn" id="bd-0" onclick="toggleBlockDay(0,this)">Zo</button>
+          <div class="settings-row static">
+            <span class="settings-row-main">
+              <span class="settings-row-label">Installeren</span>
+              <span class="settings-row-note">Gebruik de browseroptie Toevoegen aan beginscherm voor sneller openen.</span>
+            </span>
+            <span class="settings-value">PWA</span>
           </div>
-        </div>
-        <div class="settings-section">
-          <div class="settings-title">Standaard berichten</div>
-          <div class="form-group">
-            <label class="form-label">Bevestigingsbericht</label>
-            <textarea class="form-textarea" id="msg-bevestiging" style="font-size:14px" oninput="msgTemplate=this.value;updateSettingsPreview()"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Preview</label>
-            <div id="msg-preview-settings" class="settings-preview-box"></div>
-          </div>
-          <button onclick="saveSettings()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer">Opslaan</button>
-        </div>
-        <div class="settings-section">
-          <div class="settings-title">EmailJS (automatische mail)</div>
-          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;font-size:12px;line-height:1.6;color:#78350f;margin-bottom:12px">
-            Maak een gratis account op <strong>emailjs.com</strong> (200 mails/mnd gratis) en vul de gegevens in voor automatisch versturen.
-          </div>
-          <div class="form-group"><label class="form-label">Public Key</label><input class="form-input" id="ejs-pubkey" type="text" placeholder="user_xxxxxxx"></div>
-          <div class="form-group"><label class="form-label">Service ID</label><input class="form-input" id="ejs-service" type="text" placeholder="service_xxxxxxx"></div>
-          <div class="form-group"><label class="form-label">Template ID</label><input class="form-input" id="ejs-template" type="text" placeholder="template_xxxxxxx"></div>
-          <div class="setting-row" style="margin-top:4px">
-            <div><div class="setting-label">Automatisch versturen</div><div class="setting-sub">Vereist geldige EmailJS gegevens</div></div>
-            <div class="toggle" id="ejs-toggle" onclick="this.classList.toggle('on');saveSettings()"></div>
-          </div>
-          <button onclick="saveSettings()" style="width:100%;background:var(--blue);color:white;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;font-family:DM Sans,sans-serif;cursor:pointer;margin-top:8px">Opslaan</button>
         </div>
       </div>
     </div>
@@ -517,11 +600,17 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
   </div>
 </div>
 
+<script src="vendor/supabase-js.js?v=20260413a"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 // CONFIG
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxW8NMti5OOuAGCIEb1y3BPwLNZ2izURZAYS-eAGeMjGrgsyTe4rQWOixHV5m2g5pjPBQ/exec";
-
+const SUPABASE_URL = 'https://cxoqzzjjgzkaqwrggfdj.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_fAZV5BbLknce0IVc6DVjdQ_PWlymCuz';
+const CLOUD_AUTH_STORAGE_KEY = 'fitmetdicky-auth';
+const CLOUD_KLANTEN_TABLE = 'fmd_klanten';
+const CLOUD_APPOINTMENTS_TABLE = 'fmd_afspraken';
+const CLOUD_SETTINGS_TABLE = 'fmd_planner_settings';
+const CLOUD_APP_KEY = 'fitmetdicky';
 // STATE
 const today = new Date(); today.setHours(0,0,0,0);
 let selectedDate = new Date(today);
@@ -529,18 +618,26 @@ let weekOffset = 0;
 let selectedTime = null;
 let pendingSendApt = null;
 const WORK_START = 9, WORK_END = 19, SLOT_STEP = 30;
+const DEFAULT_BEHANDELINGEN = [
+  {id:'beh_massage_60', naam:'Massage 60 min', duur:60, uurtarief:50},
+  {id:'beh_massage_90', naam:'Massage 90 min', duur:90, uurtarief:50},
+  {id:'beh_consult_30', naam:'Consult 30 min', duur:30, uurtarief:50},
+  {id:'beh_massage_120', naam:'Massage 2 uur', duur:120, uurtarief:50}
+];
 
 let appointments = JSON.parse(localStorage.getItem('fmd_apts')||'[]');
 let klanten      = JSON.parse(localStorage.getItem('fmd_klanten')||'[]');
+let behandelingen = safeJsonParse(localStorage.getItem('fmd_behandelingen'), DEFAULT_BEHANDELINGEN).map(normalizeBehandeling);
 let blockedDays  = JSON.parse(localStorage.getItem('fmd_blocked_days')||'[]');
 let ejsSettings  = JSON.parse(localStorage.getItem('fmd_ejs')||'{"pubkey":"","service":"","template":"","auto":false}');
-let sheetsUrl    = SHEETS_URL;
-let syncEnabled  = true;
-let saveTimer = null;
-let syncInFlight = false;
-let hasLoadedRemote = false;
 let isHydrating = false;
 let msgTemplate  = localStorage.getItem('fmd_msg') || 'Beste [voornaam],\\n\\nJe afspraak bij Fit met Dicky is bevestigd.\\n\\nDatum:       [datum]\\nTijd:        [tijd]\\nBehandeling: [behandeling]\\n\\nTot dan!\\nDicky';
+let cloudUser = null;
+let cloudSaveTimer = null;
+let cloudReady = false;
+let cloudLoading = false;
+let cloudSaveInFlight = false;
+let cloudSaveQueued = false;
 
 // HELPERS
 const fmtTime = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
@@ -549,20 +646,183 @@ const parseDate = str => { const [y,m,d]=String(str).trim().substring(0,10).spli
 const dateKey   = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const fmtDate   = d => { const days=['Zo','Ma','Di','Wo','Do','Vr','Za'],months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']; return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]; };
 const initials  = n => n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-const avatarClr = n => { const c=['#1d3461','#d62828','#457b9d','#2d6a4f','#6c3483']; let h=0; for(const ch of n) h=(h<<5)-h+ch.charCodeAt(0); return c[Math.abs(h)%c.length]; };
+const avatarClr = n => { const c=['#6198f1','#c10017','#8bb4f7','#2f7d62','#f0c4cb']; let h=0; for(const ch of n) h=(h<<5)-h+ch.charCodeAt(0); return c[Math.abs(h)%c.length]; };
+function safeJsonParse(value, fallback){
+  try{ const parsed=JSON.parse(value||''); return parsed ?? fallback; }catch(e){ return fallback; }
+}
+function escapeHtml(value=''){
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function normalizeBehandeling(b){
+  const fallback=DEFAULT_BEHANDELINGEN[0];
+  return {
+    id:String(b?.id||('beh_'+Date.now()+'_'+Math.floor(Math.random()*100000))),
+    naam:String(b?.naam||b?.name||fallback.naam).trim()||fallback.naam,
+    duur:Math.max(5, Number(b?.duur||b?.duration||fallback.duur)||fallback.duur),
+    uurtarief:Math.max(0, Number(b?.uurtarief ?? b?.hourlyRate ?? 50)||50)
+  };
+}
+function defaultBehandeling(){
+  if(!behandelingen.length) behandelingen=DEFAULT_BEHANDELINGEN.map(normalizeBehandeling);
+  return behandelingen[0];
+}
+function treatmentLabel(b){
+  return `${b.naam} · ${b.duur} min · € ${Number(b.uurtarief).toFixed(2).replace('.',',')}/uur ex btw`;
+}
+function populateTreatmentSelect(id, selectedId){
+  const sel=document.getElementById(id); if(!sel) return;
+  behandelingen=behandelingen.map(normalizeBehandeling);
+  const current=selectedId || sel.value || defaultBehandeling().id;
+  sel.innerHTML=behandelingen.map(b=>`<option value="${escapeHtml(b.id)}">${escapeHtml(treatmentLabel(b))}</option>`).join('');
+  sel.value=behandelingen.some(b=>b.id===current)?current:defaultBehandeling().id;
+}
+function getSelectedTreatment(id){
+  const sel=document.getElementById(id);
+  return behandelingen.find(b=>b.id===sel?.value) || defaultBehandeling();
+}
+function setQuickTreatment(id){
+  const treatment=behandelingen.find(b=>b.id===id) || defaultBehandeling();
+  qa.treatmentId=treatment.id;
+  qa.dur=treatment.duur;
+  qa.treatment=treatment.naam;
+  qa.hourlyRate=treatment.uurtarief;
+  qa.time=null;
+  qaRender();
+}
+function saveTreatmentsState(){
+  behandelingen=behandelingen.map(normalizeBehandeling);
+  localStorage.setItem('fmd_behandelingen', JSON.stringify(behandelingen));
+  scheduleCloudSave();
+}
+function saveBehandeling(){
+  const naam=document.getElementById('bh-naam')?.value.trim();
+  const duur=Number(document.getElementById('bh-duur')?.value)||60;
+  const uurtarief=Number(document.getElementById('bh-uurtarief')?.value)||50;
+  if(!naam){ showToast('Vul een behandelingnaam in'); return; }
+  behandelingen.push(normalizeBehandeling({id:'beh_'+Date.now(), naam, duur, uurtarief}));
+  document.getElementById('bh-naam').value='';
+  document.getElementById('bh-duur').value='60';
+  document.getElementById('bh-uurtarief').value='50';
+  saveTreatmentsState();
+  renderBehandelingen();
+  populateTreatmentSelect('f-type');
+  showToast('Behandeling toegevoegd');
+}
+function deleteBehandeling(id){
+  if(behandelingen.length<=1){ showToast('Laat minimaal 1 behandeling staan'); return; }
+  if(!confirm('Behandeling verwijderen?')) return;
+  behandelingen=behandelingen.filter(b=>b.id!==id);
+  saveTreatmentsState();
+  renderBehandelingen();
+  populateTreatmentSelect('f-type');
+  showToast('Behandeling verwijderd');
+}
+function renderBehandelingen(){
+  const list=document.getElementById('behandeling-list'); if(!list) return;
+  behandelingen=behandelingen.map(normalizeBehandeling);
+  list.innerHTML=behandelingen.map(b=>`
+    <div class="treatment-row">
+      <div class="treatment-main">
+        <div class="treatment-name">${escapeHtml(b.naam)}</div>
+        <div class="treatment-meta">${b.duur} min · € ${Number(b.uurtarief).toFixed(2).replace('.',',')}/uur ex btw</div>
+      </div>
+      <button class="klant-btn delete" onclick="deleteBehandeling('${escapeHtml(b.id)}')">Verwijder</button>
+    </div>`).join('');
+}
 function readCache(){
   try{
     return {
       appointments: JSON.parse(localStorage.getItem('fmd_apts')||'[]'),
-      klanten: JSON.parse(localStorage.getItem('fmd_klanten')||'[]')
+      klanten: JSON.parse(localStorage.getItem('fmd_klanten')||'[]'),
+      behandelingen: safeJsonParse(localStorage.getItem('fmd_behandelingen'), DEFAULT_BEHANDELINGEN).map(normalizeBehandeling),
+      blockedDays: JSON.parse(localStorage.getItem('fmd_blocked_days')||'[]'),
+      ejsSettings: JSON.parse(localStorage.getItem('fmd_ejs')||'{"pubkey":"","service":"","template":"","auto":false}'),
+      msgTemplate: localStorage.getItem('fmd_msg') || msgTemplate
     };
   }catch(e){
-    return {appointments:[], klanten:[]};
+    return {appointments:[], klanten:[], behandelingen:DEFAULT_BEHANDELINGEN.map(normalizeBehandeling), blockedDays:[], ejsSettings:{pubkey:'',service:'',template:'',auto:false}, msgTemplate};
   }
 }
 function writeCache(){
   localStorage.setItem('fmd_apts',JSON.stringify(appointments));
   localStorage.setItem('fmd_klanten',JSON.stringify(klanten));
+  localStorage.setItem('fmd_behandelingen',JSON.stringify(behandelingen));
+  localStorage.setItem('fmd_blocked_days',JSON.stringify(blockedDays));
+  localStorage.setItem('fmd_ejs',JSON.stringify(ejsSettings));
+  localStorage.setItem('fmd_msg',msgTemplate);
+}
+function plannerSettingsSnapshot(){
+  return {
+    blockedDays,
+    behandelingen,
+    ejsSettings,
+    msgTemplate,
+    updatedAt: new Date().toISOString()
+  };
+}
+function applyCloudData(data){
+  if(!data) return;
+  isHydrating=true;
+  appointments=(data.appointments||[]).map(normalizeAppointment);
+  klanten=(data.klanten||[]).map(normalizeKlant);
+  behandelingen=Array.isArray(data.settings?.behandelingen)?data.settings.behandelingen.map(normalizeBehandeling):behandelingen;
+  blockedDays=Array.isArray(data.settings?.blockedDays)?data.settings.blockedDays:blockedDays;
+  ejsSettings=data.settings?.ejsSettings||ejsSettings;
+  msgTemplate=data.settings?.msgTemplate||msgTemplate;
+  writeCache();
+  isHydrating=false;
+  populateKlantDropdown();
+  populateTreatmentSelect('f-type');
+  renderBehandelingen();
+  renderAgenda();
+}
+async function withCloudTimeout(promise, label){
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(label+' duurde te lang. Controleer je Supabase project en RLS.')), 12000);
+  });
+  try{
+    return await Promise.race([promise, timeout]);
+  }finally{
+    clearTimeout(timer);
+  }
+}
+function normalizeCloudRows(rows){
+  return (rows||[]).map(row => row.data || {}).filter(Boolean);
+}
+function ensureUniqueIds(items, prefix){
+  const seen = new Set();
+  let changed = false;
+  const fixed = (items||[]).map((item, index) => {
+    const copy = {...item};
+    let id = String(copy.id || '');
+    if(!id || seen.has(id)){
+      id = `${prefix}_${Date.now()}_${index}_${Math.floor(Math.random()*100000)}`;
+      copy.id = id;
+      changed = true;
+    }
+    seen.add(id);
+    return copy;
+  });
+  return {items:fixed, changed};
+}
+async function syncCloudRows(client, table, rows){
+  const existing = await client.from(table).select('id').eq('user_id', cloudUser.id);
+  if(existing.error) return existing;
+
+  if(rows.length){
+    const upsert = await client.from(table).upsert(rows, {onConflict:'user_id,id'});
+    if(upsert.error) return upsert;
+  }
+
+  const currentIds = new Set(rows.map(row => row.id));
+  const staleIds = (existing.data||[]).map(row => row.id).filter(id => !currentIds.has(id));
+  if(staleIds.length){
+    const cleanup = await client.from(table).delete().eq('user_id', cloudUser.id).in('id', staleIds);
+    if(cleanup.error) return cleanup;
+  }
+
+  return {error:null};
 }
 function normalizeAppointment(a){
   const date=a?.date?String(a.date).trim().substring(0,10):'';
@@ -577,19 +837,184 @@ function hideStartupOverlay(){
 }
 
 
-function save(push=true){
+function save(){
   writeCache();
-  if(!push || !syncEnabled || !hasLoadedRemote || isHydrating) return;
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(async ()=>{
-    if(syncInFlight) return;
-    syncInFlight=true;
-    setSyncStatus('loading','Synchroniseren...');
-    const r=await sheetsPost({action:'saveAll',appointments,klanten});
-    syncInFlight=false;
-    if(r?.ok) setSyncStatus('ok','Gesynchroniseerd · '+new Date().toLocaleTimeString('nl'));
-    else setSyncStatus('error', r?.error ? 'Sync mislukt: '+String(r.error).slice(0,40) : 'Sync mislukt');
-  },350);
+  scheduleCloudSave();
+}
+// SUPABASE CLOUD
+const cloudStorage = {
+  getItem(key){ try{return localStorage.getItem(key);}catch(e){return null;} },
+  setItem(key,value){ try{localStorage.setItem(key,value);}catch(e){} },
+  removeItem(key){ try{localStorage.removeItem(key);}catch(e){} }
+};
+let supabaseClient = null;
+function getSupabaseClient(){
+  if(supabaseClient) return supabaseClient;
+  if(!window.supabase) return null;
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:false, storageKey:CLOUD_AUTH_STORAGE_KEY, storage:cloudStorage}
+  });
+  supabaseClient.auth.onAuthStateChange(async (_event, session)=>{
+    cloudUser=session?.user||null;
+    updateCloudUi();
+    if(cloudUser && !cloudReady) await loadFromCloud({silent:true});
+  });
+  return supabaseClient;
+}
+function setCloudStatus(state,msg){
+  const dot=document.getElementById('cloud-dot'), label=document.getElementById('cloud-label');
+  if(!dot||!label) return;
+  const colors={ok:'#2d6a4f',error:'#d62828',loading:'#f77f00',off:'var(--muted)'};
+  dot.style.background=colors[state]||colors.off;
+  label.textContent=msg;
+  label.style.color=colors[state]||colors.off;
+}
+function updateCloudUi(){
+  const authed=!!cloudUser;
+  const email=document.getElementById('cloud-email');
+  const fields=document.getElementById('cloud-auth-fields');
+  const login=document.getElementById('cloud-login-btn');
+  const logout=document.getElementById('cloud-logout-btn');
+  const refresh=document.getElementById('cloud-refresh-btn');
+  if(email) email.textContent=authed ? 'Ingelogd als '+cloudUser.email : 'Owner login voor de Fit met Dicky planning.';
+  if(fields) fields.style.display=authed?'none':'grid';
+  if(login) login.style.display=authed?'none':'block';
+  if(logout) logout.style.display=authed?'block':'none';
+  if(refresh) refresh.style.display=authed?'inline-block':'none';
+  if(authed) setCloudStatus(cloudReady?'ok':'loading', cloudReady?'Cloud verbonden':'Cloud verbinden...');
+  else setCloudStatus('off','Niet ingelogd');
+}
+async function syncCloudSession(){
+  const client=getSupabaseClient();
+  if(!client){ setCloudStatus('error','Supabase library ontbreekt'); return false; }
+  const { data } = await client.auth.getSession();
+  cloudUser=data?.session?.user||null;
+  updateCloudUi();
+  return !!cloudUser;
+}
+async function cloudLogin(mode){
+  const client=getSupabaseClient();
+  const email=document.getElementById('cloud-email-input')?.value.trim();
+  const password=document.getElementById('cloud-password-input')?.value;
+  if(!client || !email || !password){ showToast('Vul e-mail en wachtwoord in'); return; }
+  cloudLoading=true; setCloudStatus('loading','Inloggen...');
+  const result = await client.auth.signInWithPassword({email,password});
+  cloudLoading=false;
+  if(result.error){ setCloudStatus('error',result.error.message); showToast(result.error.message); return; }
+  cloudUser=result.data?.user||result.data?.session?.user||null;
+  updateCloudUi();
+  const loaded = await loadFromCloud({silent:true});
+  if(loaded) scheduleCloudSave();
+}
+async function cloudLogout(){
+  const client=getSupabaseClient();
+  if(!client) return;
+  await client.auth.signOut();
+  cloudUser=null; cloudReady=false; updateCloudUi();
+}
+async function loadFromCloud(options={}){
+  const client=getSupabaseClient();
+  if(!client) return false;
+  if(!cloudUser){ await syncCloudSession(); }
+  if(!cloudUser) return false;
+  setCloudStatus('loading','Cloud ophalen...');
+  try{
+    const [settingsResult, klantenResult, appointmentsResult] = await withCloudTimeout(Promise.all([
+      client.from(CLOUD_SETTINGS_TABLE).select('data,updated_at').eq('user_id', cloudUser.id).maybeSingle(),
+      client.from(CLOUD_KLANTEN_TABLE).select('data,updated_at').eq('user_id', cloudUser.id),
+      client.from(CLOUD_APPOINTMENTS_TABLE).select('data,updated_at').eq('user_id', cloudUser.id)
+    ]), 'Cloud ophalen');
+
+    const firstError = settingsResult.error || klantenResult.error || appointmentsResult.error;
+    if(firstError){
+      setCloudStatus('error','Cloud fout: '+firstError.message.slice(0,60));
+      if(!options.silent) showToast('Cloud fout: '+firstError.message);
+      return false;
+    }
+
+    const cloudKlanten = normalizeCloudRows(klantenResult.data);
+    const cloudAppointments = normalizeCloudRows(appointmentsResult.data);
+    const hasCloudData = !!settingsResult.data?.data || cloudKlanten.length || cloudAppointments.length;
+
+    if(hasCloudData){
+      applyCloudData({
+        settings: settingsResult.data?.data || {},
+        klanten: cloudKlanten,
+        appointments: cloudAppointments
+      });
+      cloudReady=true;
+      setCloudStatus('ok','Cloud geladen · '+new Date().toLocaleTimeString('nl'));
+      if(!options.silent) showToast('Cloud geladen');
+      return true;
+    }
+
+    cloudReady=true;
+    await saveToCloud(true, {silent:true});
+    setCloudStatus('ok','Cloud gestart');
+    return true;
+  }catch(error){
+    setCloudStatus('error','Cloud fout: '+error.message.slice(0,80));
+    if(!options.silent) showToast('Cloud fout: '+error.message);
+    return false;
+  }
+}
+async function saveToCloud(force=false, options={}){
+  if(isHydrating && !force) return false;
+  const client=getSupabaseClient();
+  if(!client) return false;
+  if(!cloudUser){ await syncCloudSession(); }
+  if(!cloudUser) return false;
+  if(cloudSaveInFlight){
+    cloudSaveQueued=true;
+    return false;
+  }
+  cloudSaveInFlight=true;
+  setCloudStatus('loading','Opslaan...');
+  try{
+    const now = new Date().toISOString();
+    const fixedKlanten = ensureUniqueIds(klanten, 'klant');
+    const fixedAppointments = ensureUniqueIds(appointments, 'afspraak');
+    if(fixedKlanten.changed) klanten = fixedKlanten.items;
+    if(fixedAppointments.changed) appointments = fixedAppointments.items;
+    if(fixedKlanten.changed || fixedAppointments.changed) writeCache();
+
+    const settingsPayload = {user_id:cloudUser.id, data:plannerSettingsSnapshot(), updated_at:now};
+    const klantRows = klanten.map(k => ({user_id:cloudUser.id, id:String(k.id), data:k, updated_at:now}));
+    const appointmentRows = appointments.map(a => ({user_id:cloudUser.id, id:String(a.id), data:a, updated_at:now}));
+
+    const results = await withCloudTimeout(Promise.all([
+      client.from(CLOUD_SETTINGS_TABLE).upsert(settingsPayload, {onConflict:'user_id'}),
+      syncCloudRows(client, CLOUD_KLANTEN_TABLE, klantRows),
+      syncCloudRows(client, CLOUD_APPOINTMENTS_TABLE, appointmentRows)
+    ]), 'Opslaan');
+    const firstError = results.find(result => result.error)?.error;
+    if(firstError){
+      setCloudStatus('error','Cloud fout: '+firstError.message.slice(0,60));
+      if(!options.silent) showToast('Cloud fout: '+firstError.message);
+      return false;
+    }
+
+    cloudReady=true;
+    setCloudStatus('ok','Automatisch opgeslagen · '+new Date().toLocaleTimeString('nl'));
+    if(force && !options.silent) showToast('Opgeslagen');
+    return true;
+  }catch(error){
+    setCloudStatus('error','Cloud fout: '+error.message.slice(0,80));
+    if(!options.silent) showToast('Cloud fout: '+error.message);
+    return false;
+  }finally{
+    cloudSaveInFlight=false;
+    if(cloudSaveQueued){
+      cloudSaveQueued=false;
+      setTimeout(()=>saveToCloud(false, {silent:true}), 250);
+    }
+  }
+}
+function scheduleCloudSave(){
+  if(isHydrating || !cloudUser) return;
+  clearTimeout(cloudSaveTimer);
+  setCloudStatus('loading','Wijzigingen bewaren...');
+  cloudSaveTimer=setTimeout(()=>saveToCloud(false, {silent:true}), 500);
 }
 
 // NAVIGATION
@@ -599,14 +1024,27 @@ function goTab(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('v-'+name).classList.add('active');
-  document.querySelector('.nav-tab[data-tab="'+name+'"]').classList.add('active');
+  const activeTab=document.querySelector('.nav-tab[data-tab="'+name+'"]');
+  if(activeTab) activeTab.classList.add('active');
+  document.querySelectorAll('.settings-gear-btn').forEach(btn=>btn.classList.toggle('active', name==='instellingen'));
   if(name==='agenda') renderAgenda();
   if(name==='nieuw') renderNieuw();
   if(name==='klanten') renderKlanten('');
+  if(name==='behandelingen') renderBehandelingen();
   if(name==='instellingen') initSettings();
 }
 
 // AGENDA
+function playDaySwitchFeedback(){
+  const title = document.getElementById('day-title');
+  const slots = document.getElementById('day-slots');
+  [title, slots].forEach(el => {
+    if(!el) return;
+    el.classList.remove('day-switching');
+    void el.offsetWidth;
+    el.classList.add('day-switching');
+  });
+}
 function shiftWeek(d){ weekOffset+=d; renderAgenda(); }
 
 function renderAgenda(){
@@ -629,6 +1067,7 @@ function renderAgenda(){
     days.appendChild(chip);
   }
   renderDaySlots(selectedDate);
+  playDaySwitchFeedback();
 }
 
 function renderDaySlots(date){
@@ -652,12 +1091,13 @@ function renderDaySlots(date){
 
 // ── QUICK ADD (slide-per-slide) ──
 let qa = { step:1, klantId:'', voornaam:'', achternaam:'', tel:'', email:'',
-           datum:'', time:null, dur:60, treatment:'Massage 60 min', notitie:'' };
+           datum:'', time:null, dur:defaultBehandeling().duur, treatmentId:defaultBehandeling().id, treatment:defaultBehandeling().naam, hourlyRate:defaultBehandeling().uurtarief, notitie:'' };
 
 function openQuickAdd(){
+  const treatment=defaultBehandeling();
   qa = { step:1, klantId:'', voornaam:'', achternaam:'', tel:'', email:'',
-         datum:dateKey(selectedDate), time:null, dur:60, treatment:'Massage 60 min', notitie:'' };
-  document.getElementById('quick-overlay').style.display='block';
+         datum:dateKey(selectedDate), time:null, dur:treatment.duur, treatmentId:treatment.id, treatment:treatment.naam, hourlyRate:treatment.uurtarief, notitie:'' };
+  document.getElementById('quick-overlay').style.display='flex';
   requestAnimationFrame(()=>{ document.getElementById('quick-sheet').style.transform='translateY(0)'; });
   qaRender();
 }
@@ -724,11 +1164,8 @@ function qaRender(){
       </div>
       <div style="margin-bottom:8px">
         <div class="form-label">Behandeling duur</div>
-        <select class="form-select" id="qa-type" onchange="qa.dur=parseInt(this.value);qa.treatment=this.options[this.selectedIndex].text;qa.time=null;qaRender()" style="margin:0">
-          <option value="60" ${qa.dur===60?'selected':''}>Massage 60 min</option>
-          <option value="90" ${qa.dur===90?'selected':''}>Massage 90 min</option>
-          <option value="30" ${qa.dur===30?'selected':''}>Consult 30 min</option>
-          <option value="120" ${qa.dur===120?'selected':''}>Massage 2 uur</option>
+        <select class="form-select" id="qa-type" onchange="setQuickTreatment(this.value)" style="margin:0">
+          ${behandelingen.map(b=>`<option value="${escapeHtml(b.id)}" ${qa.treatmentId===b.id?'selected':''}>${escapeHtml(treatmentLabel(b))}</option>`).join('')}
         </select>
       </div>
       <div class="form-label">Beschikbare tijden</div>
@@ -787,7 +1224,7 @@ function qaNext(){
       voornaam: qa.voornaam, achternaam: qa.achternaam,
       tel: qa.tel, email: qa.email,
       date: qa.datum, startMin: qa.time, duration: qa.dur,
-      treatment: qa.treatment, notitie: qa.notitie,
+      treatmentId: qa.treatmentId, treatment: qa.treatment, hourlyRate: qa.hourlyRate, notitie: qa.notitie,
       status:'confirmed', type:'appointment',
       notifMethod:'geen', createdAt: new Date().toISOString()
     };
@@ -805,37 +1242,32 @@ function qaNext(){
   }
 }
 
-// ── SYNC KLANTEN from sheets ──
 async function syncKlanten(){
-  const btn = document.querySelector('[onclick="syncKlanten()"]');
-  if(btn){ btn.textContent='⏳'; btn.style.opacity='.5'; }
-  const ok = await loadFromSheets('klanten');
+  const ok = await loadFromCloud();
   if(ok){
     renderKlanten('');
-    showToast('Klanten bijgewerkt ✓');
-  } else {
-    showToast('Ophalen mislukt');
+    showToast('Klanten bijgewerkt');
+  }else{
+    showToast(cloudUser ? 'Cloud ophalen mislukt' : 'Log eerst in');
   }
-  if(btn){ btn.textContent='↻'; btn.style.opacity='1'; }
 }
 
 async function refreshAgenda(){
   const btn=document.querySelector('.week-btn[onclick*="refreshAgenda"]');
   if(btn){btn.style.opacity='.5';}
-  const ok = await loadFromSheets('agenda');
-  if(ok) showToast('Agenda bijgewerkt ✓');
-  else showToast('Ophalen mislukt');
+  const ok = await loadFromCloud();
+  if(ok) showToast('Agenda bijgewerkt');
+  else showToast(cloudUser ? 'Cloud ophalen mislukt' : 'Log eerst in');
   if(btn){btn.style.opacity='1';}
   renderAgenda();
 }
-
 // AVAILABILITY
 function updateAvailability(){
   const dateVal=document.getElementById('f-datum').value;
   selectedTime=null;
   validateForm();
   if(!dateVal){document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--muted)">Kies eerst een datum</span>';return;}
-  const dur=parseInt(document.getElementById('f-type').value);
+  const dur=getSelectedTreatment('f-type').duur;
   const date=parseDate(dateVal);
   if(blockedDays.includes(date.getDay())){
     document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--red);font-weight:600">Deze dag is geblokkeerd</span>';
@@ -900,11 +1332,12 @@ function saveAppointment(){
   const tel=document.getElementById('f-tel').value.trim();
   const email=document.getElementById('f-email').value.trim();
   const datum=document.getElementById('f-datum').value;
-  const dur=parseInt(document.getElementById('f-type').value);
-  const type=document.getElementById('f-type').options[document.getElementById('f-type').selectedIndex].text;
+  const treatment=getSelectedTreatment('f-type');
+  const dur=treatment.duur;
+  const type=treatment.naam;
   const notitie=document.getElementById('f-notitie').value.trim();
   if(!voornaam||!datum||selectedTime===null) return;
-  const apt={id:Date.now().toString(),name:naam,voornaam,achternaam,tel,email,date:datum,startMin:selectedTime,duration:dur,treatment:type,notitie,status:'confirmed',type:'appointment',createdAt:new Date().toISOString()};
+  const apt={id:Date.now().toString(),name:naam,voornaam,achternaam,tel,email,date:datum,startMin:selectedTime,duration:dur,treatmentId:treatment.id,treatment:type,hourlyRate:treatment.uurtarief,notitie,status:'confirmed',type:'appointment',createdAt:new Date().toISOString()};
   appointments.push(apt);
   // Save/update klant
   const existing=klanten.find(k=>(k.tel&&k.tel===tel)||(k.email&&k.email===email));
@@ -1127,7 +1560,7 @@ function openEditKlantByIndex(index, e){
   const esc = (v='') => String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
   const overlay = document.createElement('div');
   overlay.id = 'edit-klant-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(29,52,97,.5);z-index:400;display:flex;align-items:flex-end;backdrop-filter:blur(4px)';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)';
   overlay.innerHTML = `
     <div style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:520px;margin:0 auto;padding-bottom:calc(env(safe-area-inset-bottom,0px)+24px)">
       <div style="width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto"></div>
@@ -1209,67 +1642,14 @@ function renderNieuw(){
   const d=new Date(); d.setHours(0,0,0,0);
   document.getElementById('f-datum').min=dateKey(d);
   document.getElementById('f-datum').value=dateKey(selectedDate);
-  populateKlantDropdown(); updateAvailability(); validateForm();
+  populateKlantDropdown(); populateTreatmentSelect('f-type'); updateAvailability(); validateForm();
 }
 
 // SETTINGS
 function initSettings(){
-  const urlEl=document.getElementById('sheets-url'); if(urlEl) urlEl.value=sheetsUrl;
-  if(syncEnabled) setSyncStatus(hasLoadedRemote ? 'ok' : 'loading', hasLoadedRemote ? 'Verbonden' : 'Verbinden...');
-  blockedDays.forEach(dow=>{const btn=document.getElementById('bd-'+dow);if(btn)btn.classList.add('active');});
-  const msgEl=document.getElementById('msg-bevestiging'); if(msgEl) msgEl.value=msgTemplate;
-  updateSettingsPreview();
-  const ejsEl=document.getElementById('ejs-pubkey'); if(ejsEl){document.getElementById('ejs-pubkey').value=ejsSettings.pubkey||'';document.getElementById('ejs-service').value=ejsSettings.service||'';document.getElementById('ejs-template').value=ejsSettings.template||'';if(ejsSettings.auto)document.getElementById('ejs-toggle').classList.add('on');}
+  updateCloudUi();
 }
 
-function toggleBlockDay(dow,btn){
-  if(blockedDays.includes(dow)){blockedDays=blockedDays.filter(d=>d!==dow);btn.classList.remove('active');}
-  else{blockedDays.push(dow);btn.classList.add('active');}
-  localStorage.setItem('fmd_blocked_days',JSON.stringify(blockedDays));
-}
-
-function saveSettings(){
-  msgTemplate=document.getElementById('msg-bevestiging')?.value||msgTemplate;
-  localStorage.setItem('fmd_msg',msgTemplate);
-  ejsSettings={pubkey:document.getElementById('ejs-pubkey')?.value.trim()||'',service:document.getElementById('ejs-service')?.value.trim()||'',template:document.getElementById('ejs-template')?.value.trim()||'',auto:document.getElementById('ejs-toggle')?.classList.contains('on')||false};
-  localStorage.setItem('fmd_ejs',JSON.stringify(ejsSettings));
-  localStorage.setItem('fmd_blocked_days',JSON.stringify(blockedDays));
-  updateSettingsPreview();
-  showToast('Instellingen opgeslagen!');
-}
-
-// GOOGLE SHEETS
-function getSheetsUrl(){ return SHEETS_URL; }
-function setSyncStatus(state,msg){
-  const dot=document.getElementById('sync-dot'), label=document.getElementById('sync-label'); if(!dot||!label) return;
-  const colors={ok:'#2d6a4f',error:'#d62828',loading:'#f77f00',off:'var(--muted)'};
-  dot.style.background=colors[state]||colors.off; label.textContent=msg; label.style.color=colors[state]||colors.off;
-}
-
-async function safeJson(res){ const text=await res.text(); try{return JSON.parse(text);}catch(e){console.error('Sheets parse error:',text.slice(0,200));return{error:'Parse fout: '+text.slice(0,100)};} }
-
-async function sheetsPost(data){
-  const url=getSheetsUrl(); if(!url) return null;
-  try{ const res=await fetch(url,{method:'POST',redirect:'follow',body:JSON.stringify(data)}); return await safeJson(res); }
-  catch(e){ console.error('sheetsPost:',e); return{error:e.message}; }
-}
-
-async function sheetsGet(){
-  const url=getSheetsUrl(); if(!url) return null;
-  try{ const res=await fetch(url+'?action=getAll',{redirect:'follow',cache:'no-store'}); return await safeJson(res); }
-  catch(e){ console.error('sheetsGet:',e); return{error:e.message}; }
-}
-
-async function testSheetsConnection(){
-  showToast('Sheets is al gekoppeld.');
-  return true;
-}
-
-// LOGO
-function uploadLogo(e){
-  const file=e.target.files[0]; if(!file) return;
-  const reader=new FileReader(); reader.onload=ev=>{document.getElementById('logo-wrap').innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:cover">'; localStorage.setItem('fmd_logo',ev.target.result);}; reader.readAsDataURL(file);
-}
 
 // TOAST
 function showToast(msg){
@@ -1278,42 +1658,26 @@ function showToast(msg){
   document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
 }
 
-async function loadFromSheets(source='init'){
-  setSyncStatus('loading', source==='init' ? 'Gegevens laden...' : 'Ophalen...');
-  const result=await sheetsGet();
-  if(result?.appointments){
-    isHydrating=true;
-    appointments=(result.appointments||[]).map(normalizeAppointment);
-    klanten=(result.klanten||[]).map(normalizeKlant);
-    writeCache();
-    hasLoadedRemote=true;
-    isHydrating=false;
-    setSyncStatus('ok',appointments.length+' afspraken geladen');
-    populateKlantDropdown();
-    return true;
-  }
-  const cache=readCache();
-  if(cache.appointments.length || cache.klanten.length){
-    appointments=cache.appointments.map(normalizeAppointment);
-    klanten=cache.klanten.map(normalizeKlant);
-    setSyncStatus('error','Offline cache actief');
-    return false;
-  }
-  setSyncStatus('error',result?.error ? 'Sync fout: '+String(result.error).slice(0,40) : 'Geen data ontvangen');
-  return false;
+// INIT
+function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('/sw.js').catch(err=>console.warn('Service worker registratie mislukt:', err));
 }
 
-// INIT
 async function initApp(){
+  registerServiceWorker();
   const savedLogo=localStorage.getItem('fmd_logo');
   if(savedLogo) document.getElementById('logo-wrap').innerHTML='<img src="'+savedLogo+'" style="width:100%;height:100%;object-fit:cover">';
-  const urlEl=document.getElementById('sheets-url');
-  if(urlEl) urlEl.value=SHEETS_URL;
-  const ok=await loadFromSheets('init');
-  if(!ok){
+  const hasCloudSession=await syncCloudSession();
+  const loadedFromCloud=hasCloudSession ? await loadFromCloud({silent:true}) : false;
+  if(!loadedFromCloud){
     const cache=readCache();
     appointments=cache.appointments.map(normalizeAppointment);
     klanten=cache.klanten.map(normalizeKlant);
+    behandelingen=(cache.behandelingen||DEFAULT_BEHANDELINGEN).map(normalizeBehandeling);
+    blockedDays=cache.blockedDays||blockedDays;
+    ejsSettings=cache.ejsSettings||ejsSettings;
+    msgTemplate=cache.msgTemplate||msgTemplate;
   }
   renderAgenda();
   hideStartupOverlay();
