@@ -1,8 +1,9 @@
-﻿const CACHE_NAME = 'fitmetdicky-20260413g';
+﻿const CACHE_NAME = 'fitmetdicky-20260413h';
 const ASSETS = [
   './',
   'index.html',
   'manifest.webmanifest',
+  'manifest.webmanifest?v=20260413b',
   'styles/fmd-polish.css?v=20260413k',
   'icons/icon-192.png',
   'icons/icon-512.png',
@@ -24,11 +25,22 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
   if(request.method !== 'GET') return;
+
+  if(request.mode === 'navigate'){
+    event.respondWith(
+      fetch(request).then(response => response.ok ? response : caches.match('index.html'))
+        .catch(() => caches.match('index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(request).then(response => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+      if(response.ok){
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+      }
       return response;
-    }).catch(() => caches.match(request).then(cached => cached || caches.match('index.html')))
+    }).catch(() => caches.match(request))
   );
 });
