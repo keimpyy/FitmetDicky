@@ -9,6 +9,8 @@
 <meta name="theme-color" content="#ffffff">
 <title>Fit met Dicky</title>
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -328,7 +330,7 @@ body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;mi
   .day-chip:active{transform:none}
 }
 </style>
-<link rel="stylesheet" href="styles/fmd-polish.css?v=20260413d">
+<link rel="stylesheet" href="styles/fmd-polish.css?v=20260413k">
 </head>
 <body>
 <div class="shell">
@@ -611,13 +613,18 @@ const CLOUD_KLANTEN_TABLE = 'fmd_klanten';
 const CLOUD_APPOINTMENTS_TABLE = 'fmd_afspraken';
 const CLOUD_SETTINGS_TABLE = 'fmd_planner_settings';
 const CLOUD_APP_KEY = 'fitmetdicky';
+// Fill these if you want the Mail button to send automatically via EmailJS.
+const EMAILJS_PUBLIC_KEY = '07cu9VEZUpFvwWk8T';
+const EMAILJS_SERVICE_ID = 'service_k2ayy6s';
+const EMAILJS_TEMPLATE_ID = 'template_3t77l9c';
+const EMAILJS_AUTO_SEND = true;
 // STATE
 const today = new Date(); today.setHours(0,0,0,0);
 let selectedDate = new Date(today);
 let weekOffset = 0;
 let selectedTime = null;
 let pendingSendApt = null;
-const WORK_START = 9, WORK_END = 19, SLOT_STEP = 30;
+const WORK_START = 9, WORK_END = 21, SLOT_STEP = 30;
 const DEFAULT_BEHANDELINGEN = [
   {id:'beh_massage_60', naam:'Massage 60 min', duur:60, uurtarief:50},
   {id:'beh_massage_90', naam:'Massage 90 min', duur:90, uurtarief:50},
@@ -1153,7 +1160,7 @@ function qaRender(){
     const dur = qa.dur;
     const dayApts = appointments.filter(a=>a.date===dk);
     const slots = [];
-    for(let m=9*60; m<19*60; m+=30){
+    for(let m=WORK_START*60; m+dur<=WORK_END*60; m+=SLOT_STEP){
       const conflict = dayApts.some(a=>m<a.startMin+a.duration && m+dur>a.startMin);
       slots.push({min:m, conflict, label:fmtTime(m)});
     }
@@ -1315,9 +1322,19 @@ function validateForm(){
 function buildMailBody(apt){
   const dateStr=fmtDate(parseDate(apt.date));
   const tijdStr=fmtTime(apt.startMin)+' - '+fmtTime(apt.startMin+apt.duration);
-  return msgTemplate.replace(/\\[voornaam\\]/g,apt.voornaam||apt.name.split(' ')[0]).replace(/\\[achternaam\\]/g,apt.achternaam||'').replace(/\\[naam\\]/g,apt.name).replace(/\\[datum\\]/g,dateStr).replace(/\\[tijd\\]/g,tijdStr).replace(/\\[behandeling\\]/g,apt.treatment||'Massage');
+  const firstName=apt.voornaam||apt.name.split(' ')[0]||'';
+  const rawTemplate=String(msgTemplate||'').replace(/\\n/g,'\n');
+  return rawTemplate
+    .replace(/\[voornaam\]/g,firstName)
+    .replace(/\[achternaam\]/g,apt.achternaam||'')
+    .replace(/\[naam\]/g,apt.name||firstName)
+    .replace(/\[datum\]/g,dateStr)
+    .replace(/\[tijd\]/g,tijdStr)
+    .replace(/\[behandeling\]/g,apt.treatment||'Massage');
 }
-
+function buildMailHtmlBody(apt){
+  return escapeHtml(buildMailBody(apt)).replace(/\n/g,'<br>');
+}
 function updateSettingsPreview(){
   const p=document.getElementById('msg-preview-settings'); if(!p) return;
   const demo={voornaam:'Sanne', achternaam:'Jansen', name:'Sanne Jansen', date:dateKey(selectedDate), startMin:10*60, duration:60, treatment:'Massage 60 min'};
@@ -1368,7 +1385,8 @@ function openSendModal(apt){
   const container=document.getElementById('send-options'); container.innerHTML='';
   if(apt.email){
     const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>sendViaEmail(apt.id);
-    btn.innerHTML='<span class="send-opt-icon">\u2709\ufe0f</span><div class="send-opt-text"><div class="send-opt-label">E-mail sturen</div><div class="send-opt-sub">'+apt.email+'</div></div><span class="send-opt-arrow">\u203a</span>';
+    const mailAutoReady = isEmailAutomationReady();
+    btn.innerHTML='<span class="send-opt-icon">\u2709\ufe0f</span><div class="send-opt-text"><div class="send-opt-label">'+(mailAutoReady?'E-mail automatisch versturen':'Open mail-app')+'</div><div class="send-opt-sub">'+apt.email+'</div></div><span class="send-opt-arrow">\u203a</span>';
     container.appendChild(btn);
   }
   if(apt.tel){
@@ -1391,14 +1409,26 @@ function openSendModal(apt){
 
 function closeSendModal(){ document.getElementById('send-overlay').style.display='none'; pendingSendApt=null; }
 
-function sendViaEmail(id){
+async function sendViaEmail(id){
   const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(!apt) return;
-  sendConfirmationMail(apt);
-  const c=document.getElementById('send-options'); c.innerHTML='';
-  const d=document.createElement('div'); d.className='send-info'; d.textContent='Mail-app geopend \u2014 verstuur de mail en kom terug.';
+  const c=document.getElementById('send-options');
+  c.innerHTML='';
+  const d=document.createElement('div'); d.className='send-info'; d.textContent='E-mail voorbereiden...';
   c.appendChild(d);
+  const result = await sendConfirmationMail(apt);
+  if(result.method==='emailjs'){
+    d.textContent='Bevestigingsmail automatisch verstuurd.';
+    return;
+  }
+  d.textContent=result.message||'Automatisch mailen lukte niet.';
+  if(apt.email){
+    const a=document.createElement('a');
+    a.className='send-opt';
+    a.href=buildMailtoHref(apt);
+    a.innerHTML='<span class="send-opt-icon">&#9993;</span><div class="send-opt-text"><div class="send-opt-label">Open mail-app handmatig</div><div class="send-opt-sub">Alleen gebruiken als EmailJS blijft falen</div></div><span class="send-opt-arrow">&#8250;</span>';
+    c.appendChild(a);
+  }
 }
-
 function sendViaWhatsApp(id){
   const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(!apt||!apt.tel) return;
   const dateStr=fmtDate(parseDate(apt.date));
@@ -1452,17 +1482,61 @@ function exportToCalendar(apt){
 }
 
 // MAIL
+function getEmailAutomationConfig(){
+  return {
+    pubkey: EMAILJS_PUBLIC_KEY || ejsSettings.pubkey,
+    service: EMAILJS_SERVICE_ID || ejsSettings.service,
+    template: EMAILJS_TEMPLATE_ID || ejsSettings.template,
+    auto: EMAILJS_AUTO_SEND || ejsSettings.auto
+  };
+}
+function isEmailAutomationReady(){
+  const cfg=getEmailAutomationConfig();
+  return !!(cfg.auto && cfg.pubkey && cfg.service && cfg.template && window.emailjs);
+}
+function formatEmailJsError(e){
+  if(!e) return 'Onbekende fout';
+  if(typeof e === 'string') return e;
+  return e.text || e.message || JSON.stringify(e);
+}
+function buildMailtoHref(apt){
+  const subject=encodeURIComponent('Bevestiging afspraak - '+fmtDate(parseDate(apt.date)));
+  return 'mailto:'+apt.email+'?subject='+subject+'&body='+encodeURIComponent(buildMailBody(apt));
+}
 async function sendConfirmationMail(apt){
   const body=buildMailBody(apt);
-  if(ejsSettings.auto&&ejsSettings.pubkey&&ejsSettings.service&&ejsSettings.template&&apt.email){
-    try{ emailjs.init(ejsSettings.pubkey); await emailjs.send(ejsSettings.service,ejsSettings.template,{to_email:apt.email,to_name:apt.name,message:body,appointment_date:apt.date,appointment_time:fmtTime(apt.startMin),treatment:apt.treatment}); showToast('Bevestigingsmail verstuurd!'); return; }catch(e){ console.error('EmailJS:',e); }
+  const cfg=getEmailAutomationConfig();
+  if(!apt.email) return {method:'none',message:'Geen e-mailadres beschikbaar.'};
+  if(!(cfg.auto && cfg.pubkey && cfg.service && cfg.template)){
+    return {method:'not-ready',message:'EmailJS is nog niet volledig ingesteld.'};
   }
-  if(apt.email){
-    const subject=encodeURIComponent('Bevestiging afspraak — '+fmtDate(parseDate(apt.date)));
-    window.location.href='mailto:'+apt.email+'?subject='+subject+'&body='+encodeURIComponent(body);
+  if(!window.emailjs){
+    return {method:'not-ready',message:'EmailJS script is niet geladen. Check je internetverbinding of browserblokkering.'};
+  }
+  try{
+        const templateParams={
+      to_email: apt.email,
+      email: apt.email,
+      recipient_email: apt.email,
+      reply_to: apt.email,
+      to_name: apt.name,
+      name: apt.name,
+      message: body,
+      message_html: buildMailHtmlBody(apt),
+      appointment_date: apt.date,
+      appointment_time: fmtTime(apt.startMin),
+      treatment: apt.treatment
+    };
+    await emailjs.send(cfg.service,cfg.template,templateParams,{publicKey:cfg.pubkey});
+    showToast('Bevestigingsmail verstuurd!');
+    return {method:'emailjs'};
+  }catch(e){
+    console.error('EmailJS:',e);
+    const msg=formatEmailJsError(e);
+    showToast('Automatisch mailen mislukt.');
+    return {method:'failed',message:'EmailJS fout: '+msg};
   }
 }
-
 // KLANTEN
 function populateKlantDropdown(){
   const sel=document.getElementById('f-klant-select'); if(!sel) return;

@@ -1,8 +1,13 @@
-﻿const CACHE_NAME = 'fitmetdicky-20260413a';
+﻿const CACHE_NAME = 'fitmetdicky-20260413f';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
+  '/styles/fmd-polish.css?v=20260413f',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/favicon-32.png',
   '/vendor/supabase-js.js?v=20260413a'
 ];
 
