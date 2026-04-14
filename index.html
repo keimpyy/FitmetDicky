@@ -1141,7 +1141,7 @@ function renderDaySlots(date){
     const summary=document.createElement('div');
     summary.className='day-summary';
     const countEl=document.createElement('span');
-    countEl.textContent=`${realApts.length} afspraak${realApts.length!==1?'en':''}`;
+    countEl.textContent=`${realApts.length} ${realApts.length!==1?'afspraken':'afspraak'}`;
     const right=document.createElement('div');
     right.className='day-summary-right';
     const totalEl=document.createElement('span');
@@ -1449,64 +1449,49 @@ function saveAppointment(){
 function openSendModal(apt){
   pendingSendApt=apt;
   const dateStr=fmtDate(parseDate(apt.date));
-  const isMobile=window.innerWidth<768;
   document.getElementById('send-apt-line').textContent=(apt.voornaam||apt.name)+' '+(apt.achternaam||'')+' · '+dateStr+' '+fmtTime(apt.startMin);
   const container=document.getElementById('send-options'); container.innerHTML='';
+  const calContainer=document.getElementById('send-calendar-btn'); calContainer.innerHTML='';
   if(apt.email){
-    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>sendViaEmail(apt.id);
-    const mailAutoReady = isEmailAutomationReady();
-    btn.innerHTML='<span class="send-opt-icon">\u2709\ufe0f</span><div class="send-opt-text"><div class="send-opt-label">'+(mailAutoReady?'E-mail automatisch versturen':'Open mail-app')+'</div><div class="send-opt-sub">'+apt.email+'</div></div><span class="send-opt-arrow">\u203a</span>';
+    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>confirmSendEmail(apt);
+    btn.innerHTML='<span class="send-opt-icon">\u2709\ufe0f</span><div class="send-opt-text"><div class="send-opt-label">Bevestigingsmail sturen</div><div class="send-opt-sub">'+apt.email+'</div></div><span class="send-opt-arrow">\u203a</span>';
     container.appendChild(btn);
-  }
-  if(apt.tel){
-    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>sendViaWhatsApp(apt.id);
-    btn.innerHTML='<span class="send-opt-icon">\ud83d\udcac</span><div class="send-opt-text"><div class="send-opt-label">WhatsApp sturen</div><div class="send-opt-sub">'+apt.tel+'</div></div><span class="send-opt-arrow">\u203a</span>';
-    container.appendChild(btn);
-  }
-  if(!apt.email&&!apt.tel){
-    const d=document.createElement('div'); d.className='send-info'; d.textContent='Geen contactgegevens beschikbaar';
+  } else {
+    const d=document.createElement('div'); d.className='send-info'; d.textContent='Geen e-mailadres bekend';
     container.appendChild(d);
   }
-  const calContainer=document.getElementById('send-calendar-btn'); calContainer.innerHTML='';
-  if(isMobile){
-    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>doExportCalendar(apt.id);
-    btn.innerHTML='<span class="send-opt-icon">\ud83d\udcc5</span><div class="send-opt-text"><div class="send-opt-label">Toevoegen aan Agenda</div><div class="send-opt-sub">Download .ics bestand</div></div>';
-    calContainer.appendChild(btn);
-  }
+  const calBtn=document.createElement('button'); calBtn.className='send-opt'; calBtn.onclick=()=>doExportCalendar(apt.id);
+  calBtn.innerHTML='<span class="send-opt-icon">\ud83d\udcc5</span><div class="send-opt-text"><div class="send-opt-label">Toevoegen aan Agenda</div><div class="send-opt-sub">Download .ics bestand</div></div><span class="send-opt-arrow">\u203a</span>';
+  calContainer.appendChild(calBtn);
   document.getElementById('send-overlay').style.display='flex';
+}
+
+function confirmSendEmail(apt){
+  const c=document.getElementById('send-options'); c.innerHTML='';
+  const msg=document.createElement('div'); msg.className='send-confirm-msg';
+  msg.innerHTML='Bevestigingsmail sturen naar <strong>'+apt.email+'</strong>?';
+  const row=document.createElement('div'); row.className='send-confirm-row';
+  const no=document.createElement('button'); no.className='send-confirm-no'; no.textContent='Annuleer'; no.onclick=()=>openSendModal(apt);
+  const yes=document.createElement('button'); yes.className='send-confirm-yes'; yes.textContent='Ja, verstuur'; yes.onclick=()=>sendViaEmail(apt.id);
+  row.appendChild(no); row.appendChild(yes);
+  c.appendChild(msg); c.appendChild(row);
 }
 
 function closeSendModal(){ document.getElementById('send-overlay').style.display='none'; pendingSendApt=null; }
 
 async function sendViaEmail(id){
   const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(!apt) return;
-  const c=document.getElementById('send-options');
-  c.innerHTML='';
+  const c=document.getElementById('send-options'); c.innerHTML='';
   const d=document.createElement('div'); d.className='send-info'; d.textContent='E-mail voorbereiden...';
   c.appendChild(d);
-  const result = await sendConfirmationMail(apt);
-  if(result.method==='emailjs'){
-    d.textContent='Bevestigingsmail automatisch verstuurd.';
-    return;
-  }
+  const result=await sendConfirmationMail(apt);
+  if(result.method==='emailjs'){ d.textContent='Bevestigingsmail verstuurd.'; return; }
   d.textContent=result.message||'Automatisch mailen lukte niet.';
   if(apt.email){
-    const a=document.createElement('a');
-    a.className='send-opt';
-    a.href=buildMailtoHref(apt);
-    a.innerHTML='<span class="send-opt-icon">&#9993;</span><div class="send-opt-text"><div class="send-opt-label">Open mail-app handmatig</div><div class="send-opt-sub">Alleen gebruiken als EmailJS blijft falen</div></div><span class="send-opt-arrow">&#8250;</span>';
+    const a=document.createElement('a'); a.className='send-opt'; a.href=buildMailtoHref(apt);
+    a.innerHTML='<span class="send-opt-icon">&#9993;</span><div class="send-opt-text"><div class="send-opt-label">Open mail-app handmatig</div><div class="send-opt-sub">Alleen als automatisch niet werkt</div></div><span class="send-opt-arrow">&#8250;</span>';
     c.appendChild(a);
   }
-}
-function sendViaWhatsApp(id){
-  const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(!apt||!apt.tel) return;
-  const dateStr=fmtDate(parseDate(apt.date));
-  const msg='Beste '+(apt.voornaam||apt.name.split(' ')[0])+',\\n\\nJe afspraak bij Fit met Dicky is bevestigd.\\n\\nDatum: '+dateStr+'\\nTijd: '+fmtTime(apt.startMin)+' - '+fmtTime(apt.startMin+apt.duration)+'\\nBehandeling: '+apt.treatment+'\\n\\nTot dan!\\nDicky';
-  const tel=apt.tel.replace(/\\D/g,'').replace(/^0/,'31');
-  const c=document.getElementById('send-options'); c.innerHTML='';
-  const a=document.createElement('a'); a.className='send-opt send-wa'; a.href='https://wa.me/'+tel+'?text='+encodeURIComponent(msg);
-  a.innerHTML='<span class="send-opt-icon">\ud83d\udcac</span><div class="send-opt-text"><div class="send-opt-label">Tik hier om WhatsApp te openen</div><div class="send-opt-sub">Kom daarna terug voor kalender</div></div><span class="send-opt-arrow">\u203a</span>';
-  c.appendChild(a);
 }
 
 function doExportCalendar(id){

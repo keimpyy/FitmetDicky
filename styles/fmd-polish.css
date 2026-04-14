@@ -121,6 +121,10 @@ body{background:var(--fmd-page);color:var(--text);font-weight:400}
 .send-body,.modal-body{padding:18px 20px 24px}
 .send-opt{border-radius:8px;background:#f8fafb;border-color:var(--fmd-line)}
 .send-check,.send-opt-icon{border-radius:8px}
+.send-confirm-msg{font-size:14px;color:var(--text);margin-bottom:14px;line-height:1.5}
+.send-confirm-row{display:flex;gap:8px}
+.send-confirm-no{flex:1;padding:11px;border-radius:8px;border:1px solid var(--fmd-line);background:var(--fmd-soft);color:var(--muted);font-weight:700;font-family:"DM Sans",sans-serif;cursor:pointer}
+.send-confirm-yes{flex:2;padding:11px;border-radius:8px;border:none;background:var(--green);color:#fff;font-weight:900;font-family:"DM Sans",sans-serif;cursor:pointer}
 .modal-hdr{padding:16px 20px;border-bottom:1px solid var(--fmd-line)}
 .modal-title{font-family:"DM Sans",sans-serif;font-weight:900;color:var(--text)}
 .modal-close{border-radius:8px;background:#f8fafb}
