@@ -1460,9 +1460,11 @@ function openSendModal(apt){
     const d=document.createElement('div'); d.className='send-info'; d.textContent='Geen e-mailadres bekend';
     container.appendChild(d);
   }
-  const calBtn=document.createElement('button'); calBtn.className='send-opt'; calBtn.onclick=()=>doExportCalendar(apt.id);
-  calBtn.innerHTML='<span class="send-opt-icon">\ud83d\udcc5</span><div class="send-opt-text"><div class="send-opt-label">Toevoegen aan Agenda</div><div class="send-opt-sub">Download .ics bestand</div></div><span class="send-opt-arrow">\u203a</span>';
-  calContainer.appendChild(calBtn);
+  if(window.innerWidth<768){
+    const calBtn=document.createElement('button'); calBtn.className='send-opt'; calBtn.onclick=()=>doExportCalendar(apt.id);
+    calBtn.innerHTML='<span class="send-opt-icon">\ud83d\udcc5</span><div class="send-opt-text"><div class="send-opt-label">Toevoegen aan Agenda</div><div class="send-opt-sub">Voeg toe aan agenda</div></div><span class="send-opt-arrow">\u203a</span>';
+    calContainer.appendChild(calBtn);
+  }
   document.getElementById('send-overlay').style.display='flex';
 }
 
@@ -1531,7 +1533,12 @@ function exportToCalendar(apt){
   const dtStamp=new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
   const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Fit met Dicky//NL','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+apt.id+'@fitmetdicky','DTSTAMP:'+dtStamp,'DTSTART:'+dtStart,'DTEND:'+dtEnd,'SUMMARY:'+apt.name+' — '+apt.treatment,'DESCRIPTION:'+apt.treatment+(apt.tel?'\\\\nTel: '+apt.tel:''),'LOCATION:Fit met Dicky','END:VEVENT','END:VCALENDAR'].join('\\r\\n');
   const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='afspraak-'+apt.name.split(' ')[0].toLowerCase()+'-'+apt.date+'.ics'; a.click(); URL.revokeObjectURL(url);
+  const url=URL.createObjectURL(blob);
+  if(window.innerWidth<768){
+    const a=document.createElement('a'); a.href=url; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  } else {
+    const a=document.createElement('a'); a.href=url; a.download='afspraak-'+apt.name.split(' ')[0].toLowerCase()+'-'+apt.date+'.ics'; a.click(); URL.revokeObjectURL(url);
+  }
   showToast('Kalenderitem aangemaakt!');
 }
 
