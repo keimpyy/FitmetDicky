@@ -6,7 +6,7 @@ const ASSETS = [
   'manifest.webmanifest?v=20260414a',
   'styles/fmd-app.css?v=20260414a',
   'styles/fmd-polish.css?v=20260413k',
-  'js/app.js?v=20260414b',
+  'js/app.js?v=20260414c',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',

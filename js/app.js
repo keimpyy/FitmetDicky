@@ -916,7 +916,7 @@ function closeAptModal(){ document.getElementById('apt-overlay').classList.remov
 function deleteApt(id){ appointments=appointments.filter(a=>a.id!==id); save(); closeAptModal(); renderAgenda(); showToast('Afspraak verwijderd.'); }
 
 // CALENDAR EXPORT
-async function exportToCalendar(apt){
+function exportToCalendar(apt){
   const [y,mo,d]=apt.date.split('-').map(Number);
   const sH=Math.floor(apt.startMin/60),sM=apt.startMin%60;
   const em=apt.startMin+apt.duration,eH=Math.floor(em/60),eMi=em%60;
@@ -927,23 +927,17 @@ async function exportToCalendar(apt){
   const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Fit met Dicky//NL','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+apt.id+'@fitmetdicky','DTSTAMP:'+dtStamp,'DTSTART:'+dtStart,'DTEND:'+dtEnd,'SUMMARY:'+apt.name+' \u2014 '+apt.treatment,'DESCRIPTION:'+apt.treatment+(apt.tel?'\\nTel: '+apt.tel:''),'LOCATION:Fit met Dicky','END:VEVENT','END:VCALENDAR'].join('\r\n');
   const filename='afspraak-'+apt.name.split(' ')[0].toLowerCase()+'-'+apt.date+'.ics';
 
-  // Web Share API — werkt op iOS Safari en geeft native "Voeg toe aan Agenda" optie
-  if(navigator.share && navigator.canShare){
-    const file=new File([ics],filename,{type:'text/calendar'});
-    if(navigator.canShare({files:[file]})){
-      try{
-        await navigator.share({files:[file],title:'Afspraak '+apt.name});
-        showToast('Kalenderitem aangemaakt!');
-        return;
-      }catch(e){ if(e.name==='AbortError') return; }
-    }
-  }
-
-  // Fallback: data URI (werkt in Safari waar blob-URL geblokkeerd wordt)
-  const dataUri='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
-  const a=document.createElement('a'); a.href=dataUri;
+  // Mobiel: blob URL zonder download-attribuut — iOS onderschept text/calendar en opent Calendar direct
+  // Desktop: blob URL met download-attribuut — bestand opslaan
+  const blob=new Blob([ics],{type:'text/calendar'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
   if(window.innerWidth>=768) a.download=filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
   showToast('Kalenderitem aangemaakt!');
 }
 
