@@ -54,7 +54,9 @@ body{background:var(--fmd-page);color:var(--text);font-weight:400}
 .day-title{font-size:11px;font-weight:900;color:#7a8591;margin-bottom:14px}
 .time-slot{gap:14px;margin-bottom:8px}
 .slot-time{font-family:"DM Sans",sans-serif;font-size:11px;font-weight:800;color:#7f8994;padding-top:14px}
-.apt-card{border-radius:8px!important;border:1px solid var(--fmd-line);border-left:4px solid var(--green);box-shadow:none;background:var(--fmd-surface);padding:13px 14px;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+.swipe-wrapper{position:relative;overflow:hidden;border-radius:8px}
+.swipe-delete-bg{position:absolute;inset:0;background:var(--fmd-danger,#e53935);display:flex;align-items:center;justify-content:flex-end;padding:0 20px;color:#fff;font-size:13px;font-weight:700;opacity:0;border-radius:8px;pointer-events:none}
+.apt-card{border-radius:8px!important;border:1px solid var(--fmd-line);border-left:4px solid var(--green);box-shadow:none;background:var(--fmd-surface);padding:13px 14px;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;position:relative;will-change:transform}
 .apt-card:hover{transform:translateY(-1px);border-color:#cbd6df;box-shadow:0 10px 24px rgba(18,28,38,.08)}
 .apt-name{font-size:15px;font-weight:900;color:var(--text)}
 .apt-meta{font-size:12px;color:var(--muted);line-height:1.5}

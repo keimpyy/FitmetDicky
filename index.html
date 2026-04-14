@@ -1083,17 +1083,57 @@ function renderDaySlots(date){
   const dayApts=appointments.filter(a=>a.date===dk).sort((a,b)=>a.startMin-b.startMin);
   const slots=document.getElementById('day-slots');
   if(!dayApts.length){ slots.innerHTML='<div class="empty-day"><div class="empty-icon">&#128197;</div><div>Geen afspraken</div></div>'; return; }
-  slots.innerHTML=dayApts.map(apt=>`
-    <div class="time-slot">
-      <div class="slot-time">${fmtTime(apt.startMin)}</div>
-      <div class="slot-content">
-        <div class="apt-card ${apt.type==='blocked'?'blocked':'confirmed'}" onclick="openAptModal('${apt.id}')">
-          <div class="apt-name">${apt.name}</div>
-          <div class="apt-meta">${fmtTime(apt.startMin)} – ${fmtTime(apt.startMin+apt.duration)} · ${apt.treatment||'Massage'}</div>
-          <span class="apt-badge ${apt.type==='blocked'?'blocked':'confirmed'}">${apt.type==='blocked'?'Geblokkeerd':'Bevestigd'}</span>
-        </div>
-      </div>
-    </div>`).join('');
+  slots.innerHTML='';
+  dayApts.forEach(apt=>{
+    const timeSlot=document.createElement('div');
+    timeSlot.className='time-slot';
+    const slotTime=document.createElement('div');
+    slotTime.className='slot-time';
+    slotTime.textContent=fmtTime(apt.startMin);
+    const slotContent=document.createElement('div');
+    slotContent.className='slot-content';
+    const swipeWrapper=document.createElement('div');
+    swipeWrapper.className='swipe-wrapper';
+    const deleteBg=document.createElement('div');
+    deleteBg.className='swipe-delete-bg';
+    deleteBg.innerHTML='&#128465; Verwijder';
+    const card=document.createElement('div');
+    card.className=`apt-card ${apt.type==='blocked'?'blocked':'confirmed'}`;
+    card.innerHTML=`<div class="apt-name">${apt.name}</div><div class="apt-meta">${fmtTime(apt.startMin)} \u2013 ${fmtTime(apt.startMin+apt.duration)} \u00b7 ${apt.treatment||'Massage'}</div><span class="apt-badge ${apt.type==='blocked'?'blocked':'confirmed'}">${apt.type==='blocked'?'Geblokkeerd':'Bevestigd'}</span>`;
+    let startX=0,currentX=0,moved=false;
+    const THRESHOLD=80;
+    card.addEventListener('touchstart',e=>{
+      startX=e.touches[0].clientX; currentX=0; moved=false;
+      card.style.transition='none';
+    },{passive:true});
+    card.addEventListener('touchmove',e=>{
+      const dx=e.touches[0].clientX-startX;
+      if(dx<0){
+        moved=true;
+        currentX=Math.max(dx,-THRESHOLD*1.5);
+        card.style.transform=`translateX(${currentX}px)`;
+        deleteBg.style.opacity=String(Math.min(Math.abs(currentX)/THRESHOLD,1));
+      }
+    },{passive:true});
+    card.addEventListener('touchend',()=>{
+      card.style.transition='transform .3s ease';
+      if(Math.abs(currentX)>=THRESHOLD){
+        card.style.transform='translateX(-100%)';
+        setTimeout(()=>deleteApt(apt.id),300);
+      } else {
+        card.style.transform='translateX(0)';
+        deleteBg.style.opacity='0';
+      }
+      currentX=0;
+    });
+    card.addEventListener('click',()=>{ if(!moved) openAptModal(apt.id); moved=false; });
+    swipeWrapper.appendChild(deleteBg);
+    swipeWrapper.appendChild(card);
+    slotContent.appendChild(swipeWrapper);
+    timeSlot.appendChild(slotTime);
+    timeSlot.appendChild(slotContent);
+    slots.appendChild(timeSlot);
+  });
 }
 
 // ── QUICK ADD (slide-per-slide) ──
@@ -1618,8 +1658,8 @@ function renderKlanten(q){
               <div class="klant-meta">${contact}</div>
             </div>
             <div class="klant-actions">
-              <button onclick="openEditKlant(${index},event)" class="klant-btn edit">Wijzig</button>
-              <button onclick="deleteKlant(${index},event)" class="klant-btn delete">Verwijder</button>
+              <button onclick="openEditKlantByIndex(${index},event)" class="klant-btn edit">Wijzig</button>
+              <button onclick="deleteKlantByIndex(${index},event)" class="klant-btn delete">Verwijder</button>
             </div>
           </div>
           <div class="klant-apts">${aptLabel} · ${lastLabel}</div>
