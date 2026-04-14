@@ -1,0 +1,1844 @@
+﻿<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Fit met Dicky">
+<meta name="theme-color" content="#ffffff">
+<title>Fit met Dicky</title>
+<link rel="manifest" href="manifest.webmanifest?v=20260413b">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#d62828;--blue:#1d3461;--blue2:#457b9d;
+  --white:#ffffff;--off:#f8f8f6;--border:#e8e8e4;
+  --text:#1a1a1a;--muted:#888880;--green:#2d6a4f;--shadow:0 2px 16px rgba(29,52,97,.1);
+}
+@keyframes fmdspin{to{transform:rotate(360deg)}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--off);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100dvh}
+.shell{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;background:var(--white)}
+
+/* DESKTOP */
+@media(min-width:768px){
+  .shell{max-width:100%;flex-direction:column;background:var(--white)}
+  /* Header: logo left, nav stretches full remaining width */
+  .app-header{
+    padding:0!important;height:72px;
+    display:flex;flex-direction:row;align-items:stretch;
+    border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:100;background:var(--white);width:100%;
+  }
+  /* Brand: fixed width, vertically centered, horizontal padding */
+  .brand{
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;width:200px;padding:0;
+    margin-bottom:0;border-bottom:none;border-right:1px solid var(--border);
+    height:72px;overflow:hidden;
+  }
+  .logo-wrap{width:100%!important;height:72px!important;border-radius:0!important;padding:6px 16px!important}
+  /* Nav stretches the rest of the header */
+  .nav{
+    flex:1;flex-direction:row;gap:0;padding:0;height:72px;
+    display:flex;align-items:stretch;
+  }
+  .nav-tab{
+    flex:1;padding:0 16px;border-radius:0;
+    border-bottom:3px solid transparent;
+    font-size:13px;font-weight:600;height:72px;
+    display:flex;align-items:center;justify-content:center;
+    white-space:nowrap;
+  }
+  .nav-tab::before{display:none!important;content:none!important}
+  .nav-tab.active{color:var(--red);border-bottom-color:var(--red);background:transparent}
+  .nav-tab:hover:not(.active){background:var(--off)}
+  .header-right{display:none}
+  .sidebar-new-btn{display:none}
+  .header-action{display:none}
+  .content{flex:1;padding:40px 60px!important;background:var(--off);overflow-y:auto}
+  .agenda-wrap{display:flex;flex-direction:column;gap:20px;max-width:800px;margin:0 auto;width:100%}
+  .agenda-panel{background:var(--white);border-radius:20px;padding:28px 36px;border:1px solid var(--border)}
+  .form-wrap,.settings-wrap{padding:0;max-width:680px;margin:0 auto;width:100%}
+  .klant-list{padding:0;max-width:800px;margin:0 auto;width:100%}
+  .overlay{align-items:center!important}
+  .modal{border-radius:20px!important;max-width:520px;margin:auto;max-height:80dvh}
+  .modal-handle{display:none}
+  .mobile-only{display:none!important}
+}
+@media(max-width:767px){
+  .header-right{display:none}
+  .agenda-wrap{display:block}
+  .agenda-panel{background:transparent;padding:0;border:none}
+  .sidebar-new-btn{display:none}
+}
+
+/* HEADER — mobile */
+.app-header{background:var(--white);padding:calc(env(safe-area-inset-top,0px) + 8px) 0 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;padding:0 0 0 12px;flex-shrink:0}
+.logo-wrap{width:90px;height:40px;background:white;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:2px}
+.logo-wrap img{width:100%;height:100%;object-fit:contain}
+.header-action{background:var(--red);color:white;border:none;border-radius:12px;padding:8px 16px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+/* Mobile: logo + nav in één horizontale rij */
+.mobile-nav-row{display:flex;align-items:center;height:52px;gap:0}
+.nav{display:flex;gap:0;flex:1}
+.nav-tab{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 4px;font-size:11px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;font-family:"DM Sans",sans-serif;height:52px}
+.nav-tab.active{color:var(--red);border-bottom-color:var(--red)}
+
+/* CONTENT */
+.content{flex:1;padding:0 0 calc(env(safe-area-inset-bottom,0px) + 20px);overflow-y:auto}
+.view{display:none}.view.active{display:block}
+
+/* WEEK */
+.week-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px}
+.week-label{font-family:"Playfair Display",serif;font-size:17px;font-weight:700;color:var(--blue)}
+.week-btn{background:var(--off);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--blue);font-family:"DM Sans",sans-serif}
+.week-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 16px 12px}
+.day-chip{text-align:center;padding:8px 4px;border-radius:10px;cursor:pointer;transition:all .15s}
+.day-chip.today{background:var(--red);color:white}
+.day-chip.selected{background:var(--blue);color:white}
+.day-chip.has-apt::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--red)}
+.day-chip.today.has-apt::after,.day-chip.selected.has-apt::after{background:white}
+.day-chip{position:relative}
+.day-num{font-size:15px;font-weight:600;line-height:1}
+.day-name{font-size:10px;font-weight:500;opacity:.7;margin-top:2px}
+.day-schedule{padding:0 20px}
+.day-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.time-slot{display:flex;gap:12px;margin-bottom:2px}
+.slot-time{font-size:11px;color:var(--muted);font-family:monospace;width:38px;text-align:right;padding-top:12px;flex-shrink:0}
+.slot-content{flex:1}
+.apt-card{background:var(--white);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:2px;cursor:pointer;box-shadow:var(--shadow)}
+.apt-card.blocked{border-left-color:var(--muted);background:var(--off)}
+.apt-card.confirmed{border-left-color:var(--green)}
+.apt-name{font-size:14px;font-weight:600}
+.apt-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.apt-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:4px}
+.apt-badge.confirmed{background:#d1e7dd;color:#0a3622}
+.apt-badge.blocked{background:#f0f0f0;color:#666}
+.empty-day{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:8px}
+
+/* FORM */
+.form-wrap{padding:20px}
+.form-section{margin-bottom:24px}
+.form-section-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:"DM Sans",sans-serif;font-size:16px;padding:11px 14px;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue)}
+.form-textarea{min-height:80px;resize:none}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.avail-strip{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.avail-slot{font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;border:1.5px solid transparent}
+.avail-slot.free{background:#e8f4f0;color:var(--green);border-color:#b7ddd3}
+.avail-slot.free.selected{background:var(--green);color:white;border-color:var(--green)}
+.avail-slot.busy,.avail-slot.blocked{background:#fde8e8;color:var(--red);text-decoration:line-through;cursor:not-allowed;opacity:.6}
+.submit-btn{width:100%;background:var(--red);color:white;border:none;border-radius:14px;font-family:"Playfair Display",serif;font-size:17px;font-weight:700;padding:16px;cursor:pointer;margin-top:8px;transition:opacity .15s}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed}
+#form-hint{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px;min-height:18px}
+
+/* SEND MODAL */
+.send-overlay{display:none;position:fixed;inset:0;background:rgba(29,52,97,.55);z-index:300;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:768px){.send-overlay{align-items:center;padding:20px}}
+.send-sheet{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:440px;overflow:hidden;box-shadow:0 -4px 40px rgba(0,0,0,.15)}
+@media(min-width:768px){.send-sheet{border-radius:20px}}
+.send-header{background:var(--green);padding:20px 24px;display:flex;align-items:center;gap:12px}
+.send-check{width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.send-title{font-family:"Playfair Display",serif;font-size:17px;font-weight:700;color:white}
+.send-subtitle{font-size:13px;color:rgba(255,255,255,.8);margin-top:2px}
+.send-body{padding:20px 24px 32px}
+.send-opt{display:flex;align-items:center;gap:14px;width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;font-family:"DM Sans",sans-serif;text-align:left;margin-bottom:8px;text-decoration:none;color:var(--text)}
+.send-opt:active{opacity:.8}
+.send-opt-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+.send-opt-label{font-size:14px;font-weight:600;color:var(--text)}
+.send-opt-sub{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.send-opt-arrow{color:var(--muted);font-size:18px;margin-left:auto}
+.send-wa{background:#e8fdf0;border-color:#b7ddc9}
+.send-info{background:#e8f0fb;border:1.5px solid #b3c8f0;border-radius:14px;padding:14px 16px;font-size:13px;color:var(--blue);font-weight:500;margin-bottom:8px}
+.send-close{width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:12px;color:var(--muted);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:500;padding:12px;cursor:pointer;margin-top:4px}
+
+/* KLANTEN */
+.klant-list{padding:16px 20px}
+.klant-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+.klant-avatar{width:42px;height:42px;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;font-family:"Playfair Display",serif;font-size:16px;font-weight:700;flex-shrink:0}
+.klant-name{font-size:14px;font-weight:600}
+.klant-meta{font-size:12px;color:var(--muted);margin-top:1px}
+.klant-apts{font-size:11px;font-weight:600;color:var(--blue);margin-top:3px}
+
+/* INSTELLINGEN */
+.settings-wrap{padding:20px}
+.settings-section{margin-bottom:24px}
+.settings-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+.setting-row{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.setting-label{font-size:14px;font-weight:500}
+.setting-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.toggle{width:44px;height:26px;background:var(--border);border-radius:13px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--red)}
+.toggle::after{content:"";position:absolute;width:20px;height:20px;background:white;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* MODAL (afspraak detail) */
+.overlay{display:none;position:fixed;inset:0;background:rgba(29,52,97,.5);z-index:200;align-items:flex-end;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-height:90dvh;overflow-y:auto;padding-bottom:calc(env(safe-area-inset-bottom,0px)+20px)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto 4px}
+.modal-hdr{padding:8px 20px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-title{font-family:"Playfair Display",serif;font-size:18px;font-weight:700;color:var(--blue)}
+.modal-close{background:var(--off);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--muted)}
+.modal-body{padding:16px 20px}
+.modal-action-row{display:flex;gap:8px;margin-top:16px}
+.modal-btn{flex:1;padding:13px;border-radius:12px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none}
+.modal-btn.primary{background:var(--red);color:white}
+.modal-btn.secondary{background:var(--off);color:var(--text);border:1px solid var(--border)}
+.modal-btn.success{background:var(--green);color:white}
+.modal-btn.danger{background:#fde8e8;color:var(--red)}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-label{font-size:13px;color:var(--muted)}
+.detail-value{font-size:13px;font-weight:600;text-align:right;max-width:200px}
+
+/* AGENDA ACTIONS */
+.week-actions{display:flex;align-items:center;gap:6px}
+.week-add-btn{background:var(--red);color:white;border:none;border-radius:10px;height:34px;padding:0 12px;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(214,40,40,.18)}
+.week-add-btn .plus{font-size:18px;line-height:1;font-weight:400}
+#fab-btn{position:fixed;left:16px;right:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:240;height:52px;padding:0 18px;border-radius:999px;background:var(--red);color:white;border:none;font-size:15px;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(214,40,40,.28);display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-family:"DM Sans",sans-serif}
+#fab-btn .fab-plus{font-size:24px;font-weight:300;line-height:1}
+@media(min-width:768px){
+  #fab-btn{display:none!important}
+}
+@media(max-width:767px){
+  .week-add-btn{display:none}
+}
+
+
+/* ROUND 3 POLISH */
+.agenda-toolbar-card{display:none}
+.klant-card{align-items:flex-start;padding:16px;border-radius:18px;margin-bottom:10px}
+.klant-main{flex:1;min-width:0}
+.klant-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.klant-name-wrap{min-width:0}
+.klant-name{font-size:15px;font-weight:700;color:var(--blue);line-height:1.2}
+.klant-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.klant-apts{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--blue);margin-top:10px;padding:6px 10px;border-radius:999px;background:#eef3f8}
+.klant-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.klant-btn{border:none;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif}
+.klant-btn.edit{background:#eef3f8;color:var(--blue)}
+.klant-btn.delete{background:#fde8e8;color:var(--red)}
+.settings-wrap{display:flex;flex-direction:column;gap:14px}
+.settings-section{margin-bottom:0;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:18px 16px;box-shadow:var(--shadow)}
+.settings-title{margin-bottom:14px}
+.settings-muted-box{background:var(--off);border:1px solid var(--border);border-radius:14px;padding:14px}
+.settings-preview-box{background:var(--off);border:1.5px solid var(--border);border-radius:14px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text)}
+#fab-btn{height:58px;padding:0 18px 0 14px;border-radius:20px;background:rgba(214,40,40,.96);backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(214,40,40,.30), inset 0 1px 0 rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.2)}
+#fab-btn .fab-icon{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#fab-btn .fab-plus{font-size:22px;font-weight:300;line-height:1}
+#fab-btn .fab-label{display:flex;flex-direction:column;align-items:flex-start;line-height:1.05}
+#fab-btn .fab-label strong{font-size:14px}
+#fab-btn .fab-label span{font-size:10px;opacity:.82;font-weight:600;letter-spacing:.2px}
+.week-actions{gap:8px}
+.week-add-btn{border-radius:12px;height:36px;padding:0 14px;box-shadow:0 6px 16px rgba(214,40,40,.16)}
+@media(max-width:767px){
+  .agenda-panel:first-child{padding-top:10px}
+  .week-nav{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:12px 14px;margin:0 16px 12px;box-shadow:var(--shadow)}
+  .week-label{font-size:16px}
+  .week-days{padding:0 16px 10px}
+  .day-schedule{padding:0 16px}
+  .klant-card-top{flex-direction:column}
+  .klant-actions{width:100%;justify-content:stretch}
+  .klant-btn{flex:1;text-align:center}
+  .settings-wrap{padding:16px}
+  .settings-section{padding:16px 14px;border-radius:16px}
+}
+
+
+
+/* SETTINGS CLEAN */
+.settings-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;background:var(--white);border:1px solid var(--border);border-radius:18px;padding:18px 16px;box-shadow:var(--shadow)}
+.settings-kicker{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:6px}
+.settings-heading{font-family:"Playfair Display",serif;font-size:24px;font-weight:800;color:var(--blue);line-height:1.05}
+.settings-subtitle{font-size:13px;line-height:1.5;color:var(--muted);margin-top:6px}
+.settings-badge{font-size:12px;font-weight:800;color:var(--red);background:#fde8e8;border:1px solid #f7cccc;border-radius:8px;padding:8px 10px;white-space:nowrap}
+.settings-status-row{display:flex;align-items:center;gap:10px;background:var(--off);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px}
+.settings-status-dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.settings-status-label{color:var(--muted)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--off);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:8px}
+.settings-row-main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.settings-row-label{font-size:15px;font-weight:700;color:var(--text)}
+.settings-row-note{font-size:12px;color:var(--muted);line-height:1.4}
+.settings-value{font-size:12px;font-weight:800;color:var(--blue);flex-shrink:0}
+/* CLOUD ACCOUNT */
+.cloud-auth-box{background:var(--off);border:1.5px solid var(--border);border-radius:16px;padding:14px;margin-top:10px}
+.cloud-auth-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.cloud-button-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cloud-button-row.single{grid-template-columns:1fr}
+.cloud-btn{background:var(--blue);color:white;border:none;border-radius:8px;padding:12px 14px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+.cloud-btn.secondary{background:var(--off);color:var(--blue);border:1.5px solid var(--blue)}
+.cloud-btn.danger{background:var(--red)}
+.cloud-btn:disabled{opacity:.5;cursor:not-allowed}
+.cloud-account-line{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px;word-break:break-word}
+.cloud-note{font-size:12px;line-height:1.6;color:var(--muted);margin-top:8px}
+.cloud-mini-action{background:none;border:none;color:var(--blue);font:inherit;font-size:12px;font-weight:700;padding:0;margin-top:8px;cursor:pointer}
+
+
+/* HEADER SETTINGS + TREATMENTS */
+.settings-header{display:flex!important;align-items:center;justify-content:center;padding-right:14px}
+.settings-gear-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--blue);font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);font-family:"DM Sans",sans-serif;transition:background .15s,color .15s,transform .15s}
+.settings-gear-btn:hover,.settings-gear-btn.active{background:var(--blue);color:white;transform:translateY(-1px)}
+.treatments-wrap{max-width:780px}
+.treatment-form-grid{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:12px;align-items:end}
+.treatment-save-btn{width:100%;margin-top:4px}
+.treatment-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--off);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.treatment-main{min-width:0}
+.treatment-name{font-size:15px;font-weight:800;color:var(--blue);line-height:1.2}
+.treatment-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.nav-label-short{display:none}
+@media(max-width:767px){
+  .app-header{position:sticky;padding-top:calc(env(safe-area-inset-top,0px) + 4px)}
+  .app-header .brand{display:none}
+  .app-header .nav{padding-right:54px}
+  .settings-header{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;height:40px;padding-right:0;z-index:2}
+  .settings-gear-btn{width:38px;height:38px;border-radius:10px;font-size:19px}
+  .nav-label-long{display:none}
+  .nav-label-short{display:inline}
+  .treatment-form-grid{grid-template-columns:1fr}
+  .treatment-row{align-items:flex-start;flex-direction:column}
+  .treatment-row .klant-btn{width:100%}
+}
+/* AGENDA MOTION */
+@keyframes dayChipPop{0%{transform:scale(.94)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes dayPanelIn{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes aptCardIn{0%{opacity:0;transform:translateY(8px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.day-chip{will-change:transform,box-shadow}
+.day-chip:active{transform:scale(.94)}
+.day-chip.selected{animation:dayChipPop .28s ease-out;box-shadow:0 8px 18px rgba(29,52,97,.18)}
+.day-chip.today{box-shadow:0 8px 18px rgba(214,40,40,.18)}
+.day-title.day-switching{animation:dayPanelIn .24s ease-out both}
+#day-slots.day-switching{animation:dayPanelIn .28s ease-out both}
+#day-slots.day-switching .time-slot{animation:aptCardIn .28s ease-out both}
+#day-slots.day-switching .time-slot:nth-child(2){animation-delay:.03s}
+#day-slots.day-switching .time-slot:nth-child(3){animation-delay:.06s}
+#day-slots.day-switching .time-slot:nth-child(4){animation-delay:.09s}
+#day-slots.day-switching .time-slot:nth-child(n+5){animation-delay:.12s}
+@media(max-width:767px){
+  #fab-btn{left:auto;right:calc(env(safe-area-inset-right,0px) + 16px);bottom:calc(env(safe-area-inset-bottom,0px) + 18px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .day-chip.selected,.day-title.day-switching,#day-slots.day-switching,#day-slots.day-switching .time-slot{animation:none!important}
+  .day-chip:active{transform:none}
+}
+</style>
+<link rel="stylesheet" href="styles/fmd-polish.css?v=20260413k">
+</head>
+<body>
+<div class="shell">
+  <div class="app-header">
+    <!-- Desktop: brand left, nav center, button right — all vertically centered -->
+    <div class="brand"><div class="logo-wrap" id="logo-wrap" style="background:white;padding:3px;width:140px;height:52px;border-radius:8px;flex-shrink:0"><img src="data:image/jpeg;base64,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" alt="Fit met Dicky" style="width:100%;height:100%;object-fit:contain"></div>
+    </div>
+    <div class="nav">
+      <button class="nav-tab active" data-tab="agenda" onclick="goTab('agenda')">Agenda</button>
+      <button class="nav-tab" data-tab="nieuw" onclick="goTab('nieuw')">Nieuw</button>
+      <button class="nav-tab" data-tab="klanten" onclick="goTab('klanten')">Klanten</button>
+      <button class="nav-tab" data-tab="behandelingen" onclick="goTab('behandelingen')"><span class="nav-label-long">Behandelingen</span><span class="nav-label-short">Beh.</span></button>
+    </div><!-- /nav -->
+    <div class="header-right settings-header">
+      <button class="settings-gear-btn" onclick="goTab('instellingen')" aria-label="Instellingen" title="Instellingen">&#9881;</button>
+    </div>
+  </div><!-- /app-header -->
+
+  <div class="content">    <!-- AGENDA -->
+    <div id="v-agenda" class="view active">
+      <div class="agenda-wrap">
+        <div class="agenda-panel">
+          <div class="week-nav">
+            <button class="week-btn" onclick="shiftWeek(-1)">&#8249;</button>
+            <div class="week-label" id="week-label"></div>
+            <div class="week-actions">
+              <button class="week-btn" onclick="shiftWeek(1)">&#8250;</button>
+              <button class="week-btn" onclick="refreshAgenda()" title="Cloud ophalen" style="font-size:14px">&#8635;</button>
+              <button class="week-add-btn" onclick="openQuickAdd()" title="Nieuwe afspraak"><span class="plus">+</span><span>Afspraak</span></button>
+            </div>
+          </div>
+          <div class="week-days" id="week-days"></div>
+        </div>
+        <div class="agenda-panel">
+          <div class="day-schedule">
+            <div class="day-title" id="day-title"></div>
+            <div id="day-slots"></div>
+          </div>
+        </div>
+      </div>
+      <!-- FAB: snelle afspraak -->
+      <button onclick="openQuickAdd()" id="fab-btn" aria-label="Nieuwe afspraak">
+        <span class="fab-icon"><span class="fab-plus">+</span></span>
+        <span class="fab-label"><strong>Afspraak</strong><span>Snel toevoegen</span></span>
+      </button>
+    </div>
+
+    <!-- NIEUW -->
+    <div id="v-nieuw" class="view">
+      <div class="form-wrap">
+        <div class="form-section">
+          <div class="form-section-title">Klantgegevens</div>
+          <div class="form-group">
+            <label class="form-label">Klant selecteren</label>
+            <select class="form-select" id="f-klant-select" onchange="selectKlant(this.value)">
+              <option value="">&#8212; Nieuwe klant &#8212;</option>
+            </select>
+          </div>
+
+          <!-- Samenvatting bij bestaande klant -->
+          <div id="klant-summary" style="display:none;background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div id="klant-summary-naam" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+                <div id="klant-summary-sub" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+              </div>
+              <button onclick="clearKlantSelect()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--border)">Wijzig</button>
+            </div>
+          </div>
+
+          <!-- Invoervelden bij nieuwe klant -->
+          <div id="klant-velden">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Voornaam</label>
+                <input class="form-input" id="f-voornaam" type="text" placeholder="Voornaam" autocomplete="off" oninput="validateForm()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Achternaam</label>
+                <input class="form-input" id="f-achternaam" type="text" placeholder="Achternaam" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Telefoon</label>
+                <input class="form-input" id="f-tel" type="tel" placeholder="06-" oninput="validateForm()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input class="form-input" id="f-email" type="email" placeholder="@" oninput="validateForm()">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Afspraak</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Datum</label>
+              <input class="form-input" id="f-datum" type="date" onchange="updateAvailability()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Behandeling</label>
+              <select class="form-select" id="f-type" onchange="updateAvailability()"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Beschikbare tijden</label>
+            <div class="avail-strip" id="avail-strip"><span style="font-size:12px;color:var(--muted)">Kies eerst een datum</span></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notitie (optioneel)</label>
+            <textarea class="form-textarea" id="f-notitie" placeholder="Bijv. rugklachten, voorkeur..."></textarea>
+          </div>
+        </div>
+        <div id="form-hint"></div>
+        <button class="submit-btn" id="submit-btn" onclick="saveAppointment()" disabled>Afspraak inplannen</button>
+      </div>
+    </div>
+
+    <!-- KLANTEN -->
+    <div id="v-klanten" class="view">
+      <div class="klant-list">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <div style="position:relative;flex:1">
+            <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px">&#128269;</span>
+            <input type="text" style="width:100%;background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px 11px 40px;font-size:16px;font-family:DM Sans,sans-serif;outline:none;color:var(--text)" placeholder="Zoek klant..." oninput="renderKlanten(this.value)">
+          </div>
+          <button id="klant-add-btn" onclick="toggleKlantForm()" style="background:var(--red);color:white;border:none;border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;white-space:nowrap">+ Klant</button>
+        </div>
+        <div id="klant-form" style="display:none;background:var(--off);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px">Nieuwe klant</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Voornaam</div><input class="form-input" id="nk-voornaam" type="text" placeholder="Voornaam"></div>
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Achternaam</div><input class="form-input" id="nk-achternaam" type="text" placeholder="Achternaam"></div>
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Telefoon</div><input class="form-input" id="nk-tel" type="tel" placeholder="06-"></div>
+            <div><div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">E-mail</div><input class="form-input" id="nk-email" type="email" placeholder="@"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="saveNewKlant()" style="flex:1;background:var(--blue);color:white;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Opslaan</button>
+            <button onclick="toggleKlantForm()" style="background:var(--off);color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;font-size:14px;cursor:pointer;font-family:DM Sans,sans-serif">Annuleer</button>
+          </div>
+        </div>
+        <div id="klant-list-items"></div>
+      </div>
+    </div>
+
+    <!-- BEHANDELINGEN -->
+    <div id="v-behandelingen" class="view">
+      <div class="settings-wrap treatments-wrap">
+        <div class="settings-hero">
+          <div>
+            <div class="settings-kicker">Behandelingen</div>
+            <div class="settings-heading">Tarieven en duur</div>
+            <div class="settings-subtitle">Maak de behandelingen aan die je direct in de agenda wilt kiezen.</div>
+          </div>
+          <div class="settings-badge">Ex btw</div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">Nieuwe behandeling</div>
+          <div class="treatment-form-grid">
+            <div class="form-group">
+              <label class="form-label">Naam</label>
+              <input class="form-input" id="bh-naam" type="text" placeholder="Bijv. Personal training" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duur in minuten</label>
+              <input class="form-input" id="bh-duur" type="number" min="5" step="5" value="60">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Uurtarief ex btw</label>
+              <input class="form-input" id="bh-uurtarief" type="number" min="0" step="0.5" value="50">
+            </div>
+          </div>
+          <button class="cloud-btn treatment-save-btn" onclick="saveBehandeling()">Behandeling toevoegen</button>
+          <div class="cloud-note">Nieuwe afspraken nemen de duur en het tarief van de gekozen behandeling over.</div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">Alle behandelingen</div>
+          <div id="behandeling-list"></div>
+        </div>
+      </div>
+    </div>
+    <!-- INSTELLINGEN -->
+    <div id="v-instellingen" class="view">
+      <div class="settings-wrap">
+        <div class="settings-hero">
+          <div>
+            <div class="settings-kicker">Instellingen</div>
+            <div class="settings-heading">App voorkeuren</div>
+            <div class="settings-subtitle">Cloud, installatie en beheer voor de planning.</div>
+          </div>
+          <div class="settings-badge">Fit met Dicky</div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">Account</div>
+          <div id="cloud-status" class="settings-status-row">
+            <div id="cloud-dot" class="settings-status-dot"></div>
+            <div id="cloud-label" class="settings-status-label">Niet ingelogd</div>
+          </div>
+          <div class="cloud-auth-box">
+            <div class="cloud-account-line" id="cloud-email">Owner login voor de Fit met Dicky planning.</div>
+            <div class="cloud-auth-row" id="cloud-auth-fields">
+              <input class="form-input" id="cloud-email-input" type="email" placeholder="E-mail" autocomplete="email">
+              <input class="form-input" id="cloud-password-input" type="password" placeholder="Wachtwoord" autocomplete="current-password">
+            </div>
+            <div class="cloud-button-row single">
+              <button class="cloud-btn" id="cloud-login-btn" onclick="cloudLogin('signin')">Inloggen</button>
+            </div>
+            <button class="cloud-mini-action" id="cloud-refresh-btn" onclick="loadFromCloud()" style="display:none">Cloud opnieuw ophalen</button>
+            <button class="cloud-btn danger" id="cloud-logout-btn" onclick="cloudLogout()" style="display:none;width:100%;margin-top:8px">Uitloggen</button>
+            <div class="cloud-note">Alleen de eigenaar hoort hier in te loggen. Wijzigingen worden automatisch opgeslagen.</div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title">App</div>
+          <div class="settings-row static">
+            <span class="settings-row-main">
+              <span class="settings-row-label">Opslag</span>
+              <span class="settings-row-note">Klanten, afspraken en instellingen worden in Supabase bewaard.</span>
+            </span>
+            <span class="settings-value">Actief</span>
+          </div>
+          <div class="settings-row static">
+            <span class="settings-row-main">
+              <span class="settings-row-label">Installeren</span>
+              <span class="settings-row-note">Gebruik de browseroptie Toevoegen aan beginscherm voor sneller openen.</span>
+            </span>
+            <span class="settings-value">PWA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div id="startup-overlay" style="position:fixed;inset:0;background:rgba(255,255,255,.96);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px"><div style="width:42px;height:42px;border:4px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:fmdspin 1s linear infinite"></div><div style="font-size:14px;font-weight:600;color:var(--blue);font-family:'DM Sans',sans-serif">Gegevens laden...</div></div>
+
+<!-- SEND MODAL -->
+<div class="send-overlay" id="send-overlay">
+  <div class="send-sheet">
+    <div class="send-header">
+      <div class="send-check">&#10003;</div>
+      <div>
+        <div class="send-title">Afspraak ingepland!</div>
+        <div class="send-subtitle" id="send-apt-line"></div>
+      </div>
+    </div>
+    <div class="send-body">
+      <div id="send-options"></div>
+      <div id="send-calendar-btn"></div>
+      <button class="send-close" onclick="closeSendModal()">Sluiten</button>
+    </div>
+  </div>
+</div>
+
+<!-- APT DETAIL MODAL -->
+<div class="overlay" id="apt-overlay" onclick="if(event.target===this)closeAptModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title" id="apt-modal-title">Afspraak</div>
+      <div class="modal-close" onclick="closeAptModal()">&#215;</div>
+    </div>
+    <div class="modal-body" id="apt-modal-body"></div>
+  </div>
+</div>
+
+<script src="vendor/supabase-js.js?v=20260413a"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// CONFIG
+const SUPABASE_URL = 'https://cxoqzzjjgzkaqwrggfdj.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_fAZV5BbLknce0IVc6DVjdQ_PWlymCuz';
+const CLOUD_AUTH_STORAGE_KEY = 'fitmetdicky-auth';
+const CLOUD_KLANTEN_TABLE = 'fmd_klanten';
+const CLOUD_APPOINTMENTS_TABLE = 'fmd_afspraken';
+const CLOUD_SETTINGS_TABLE = 'fmd_planner_settings';
+const CLOUD_APP_KEY = 'fitmetdicky';
+// Fill these if you want the Mail button to send automatically via EmailJS.
+const EMAILJS_PUBLIC_KEY = '07cu9VEZUpFvwWk8T';
+const EMAILJS_SERVICE_ID = 'service_k2ayy6s';
+const EMAILJS_TEMPLATE_ID = 'template_3t77l9c';
+const EMAILJS_AUTO_SEND = true;
+// STATE
+const today = new Date(); today.setHours(0,0,0,0);
+let selectedDate = new Date(today);
+let weekOffset = 0;
+let selectedTime = null;
+let pendingSendApt = null;
+const WORK_START = 9, WORK_END = 21, SLOT_STEP = 30;
+const DEFAULT_BEHANDELINGEN = [
+  {id:'beh_massage_60', naam:'Massage 60 min', duur:60, uurtarief:50},
+  {id:'beh_massage_90', naam:'Massage 90 min', duur:90, uurtarief:50},
+  {id:'beh_consult_30', naam:'Consult 30 min', duur:30, uurtarief:50},
+  {id:'beh_massage_120', naam:'Massage 2 uur', duur:120, uurtarief:50}
+];
+
+let appointments = JSON.parse(localStorage.getItem('fmd_apts')||'[]');
+let klanten      = JSON.parse(localStorage.getItem('fmd_klanten')||'[]');
+let behandelingen = safeJsonParse(localStorage.getItem('fmd_behandelingen'), DEFAULT_BEHANDELINGEN).map(normalizeBehandeling);
+let blockedDays  = JSON.parse(localStorage.getItem('fmd_blocked_days')||'[]');
+let ejsSettings  = JSON.parse(localStorage.getItem('fmd_ejs')||'{"pubkey":"","service":"","template":"","auto":false}');
+let isHydrating = false;
+let msgTemplate  = localStorage.getItem('fmd_msg') || 'Beste [voornaam],\\n\\nJe afspraak bij Fit met Dicky is bevestigd.\\n\\nDatum:       [datum]\\nTijd:        [tijd]\\nBehandeling: [behandeling]\\n\\nTot dan!\\nDicky';
+let cloudUser = null;
+let cloudSaveTimer = null;
+let cloudReady = false;
+let cloudLoading = false;
+let cloudSaveInFlight = false;
+let cloudSaveQueued = false;
+
+// HELPERS
+const fmtTime = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+// parseDate always uses LOCAL time to avoid UTC timezone shift
+const parseDate = str => { const [y,m,d]=String(str).trim().substring(0,10).split('-').map(Number); return new Date(y,m-1,d); };
+const dateKey   = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmtDate   = d => { const days=['Zo','Ma','Di','Wo','Do','Vr','Za'],months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']; return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]; };
+const initials  = n => n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const avatarClr = n => { const c=['#6198f1','#c10017','#8bb4f7','#2f7d62','#f0c4cb']; let h=0; for(const ch of n) h=(h<<5)-h+ch.charCodeAt(0); return c[Math.abs(h)%c.length]; };
+function safeJsonParse(value, fallback){
+  try{ const parsed=JSON.parse(value||''); return parsed ?? fallback; }catch(e){ return fallback; }
+}
+function escapeHtml(value=''){
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function normalizeBehandeling(b){
+  const fallback=DEFAULT_BEHANDELINGEN[0];
+  return {
+    id:String(b?.id||('beh_'+Date.now()+'_'+Math.floor(Math.random()*100000))),
+    naam:String(b?.naam||b?.name||fallback.naam).trim()||fallback.naam,
+    duur:Math.max(5, Number(b?.duur||b?.duration||fallback.duur)||fallback.duur),
+    uurtarief:Math.max(0, Number(b?.uurtarief ?? b?.hourlyRate ?? 50)||50)
+  };
+}
+function defaultBehandeling(){
+  if(!behandelingen.length) behandelingen=DEFAULT_BEHANDELINGEN.map(normalizeBehandeling);
+  return behandelingen[0];
+}
+function treatmentLabel(b){
+  return `${b.naam} · ${b.duur} min · € ${Number(b.uurtarief).toFixed(2).replace('.',',')}/uur ex btw`;
+}
+function populateTreatmentSelect(id, selectedId){
+  const sel=document.getElementById(id); if(!sel) return;
+  behandelingen=behandelingen.map(normalizeBehandeling);
+  const current=selectedId || sel.value || defaultBehandeling().id;
+  sel.innerHTML=behandelingen.map(b=>`<option value="${escapeHtml(b.id)}">${escapeHtml(treatmentLabel(b))}</option>`).join('');
+  sel.value=behandelingen.some(b=>b.id===current)?current:defaultBehandeling().id;
+}
+function getSelectedTreatment(id){
+  const sel=document.getElementById(id);
+  return behandelingen.find(b=>b.id===sel?.value) || defaultBehandeling();
+}
+function setQuickTreatment(id){
+  const treatment=behandelingen.find(b=>b.id===id) || defaultBehandeling();
+  qa.treatmentId=treatment.id;
+  qa.dur=treatment.duur;
+  qa.treatment=treatment.naam;
+  qa.hourlyRate=treatment.uurtarief;
+  qa.time=null;
+  qaRender();
+}
+function saveTreatmentsState(){
+  behandelingen=behandelingen.map(normalizeBehandeling);
+  localStorage.setItem('fmd_behandelingen', JSON.stringify(behandelingen));
+  scheduleCloudSave();
+}
+function saveBehandeling(){
+  const naam=document.getElementById('bh-naam')?.value.trim();
+  const duur=Number(document.getElementById('bh-duur')?.value)||60;
+  const uurtarief=Number(document.getElementById('bh-uurtarief')?.value)||50;
+  if(!naam){ showToast('Vul een behandelingnaam in'); return; }
+  behandelingen.push(normalizeBehandeling({id:'beh_'+Date.now(), naam, duur, uurtarief}));
+  document.getElementById('bh-naam').value='';
+  document.getElementById('bh-duur').value='60';
+  document.getElementById('bh-uurtarief').value='50';
+  saveTreatmentsState();
+  renderBehandelingen();
+  populateTreatmentSelect('f-type');
+  showToast('Behandeling toegevoegd');
+}
+function deleteBehandeling(id){
+  if(behandelingen.length<=1){ showToast('Laat minimaal 1 behandeling staan'); return; }
+  if(!confirm('Behandeling verwijderen?')) return;
+  behandelingen=behandelingen.filter(b=>b.id!==id);
+  saveTreatmentsState();
+  renderBehandelingen();
+  populateTreatmentSelect('f-type');
+  showToast('Behandeling verwijderd');
+}
+function renderBehandelingen(){
+  const list=document.getElementById('behandeling-list'); if(!list) return;
+  behandelingen=behandelingen.map(normalizeBehandeling);
+  list.innerHTML=behandelingen.map(b=>`
+    <div class="treatment-row">
+      <div class="treatment-main">
+        <div class="treatment-name">${escapeHtml(b.naam)}</div>
+        <div class="treatment-meta">${b.duur} min · € ${Number(b.uurtarief).toFixed(2).replace('.',',')}/uur ex btw</div>
+      </div>
+      <button class="klant-btn delete" onclick="deleteBehandeling('${escapeHtml(b.id)}')">Verwijder</button>
+    </div>`).join('');
+}
+function readCache(){
+  try{
+    return {
+      appointments: JSON.parse(localStorage.getItem('fmd_apts')||'[]'),
+      klanten: JSON.parse(localStorage.getItem('fmd_klanten')||'[]'),
+      behandelingen: safeJsonParse(localStorage.getItem('fmd_behandelingen'), DEFAULT_BEHANDELINGEN).map(normalizeBehandeling),
+      blockedDays: JSON.parse(localStorage.getItem('fmd_blocked_days')||'[]'),
+      ejsSettings: JSON.parse(localStorage.getItem('fmd_ejs')||'{"pubkey":"","service":"","template":"","auto":false}'),
+      msgTemplate: localStorage.getItem('fmd_msg') || msgTemplate
+    };
+  }catch(e){
+    return {appointments:[], klanten:[], behandelingen:DEFAULT_BEHANDELINGEN.map(normalizeBehandeling), blockedDays:[], ejsSettings:{pubkey:'',service:'',template:'',auto:false}, msgTemplate};
+  }
+}
+function writeCache(){
+  localStorage.setItem('fmd_apts',JSON.stringify(appointments));
+  localStorage.setItem('fmd_klanten',JSON.stringify(klanten));
+  localStorage.setItem('fmd_behandelingen',JSON.stringify(behandelingen));
+  localStorage.setItem('fmd_blocked_days',JSON.stringify(blockedDays));
+  localStorage.setItem('fmd_ejs',JSON.stringify(ejsSettings));
+  localStorage.setItem('fmd_msg',msgTemplate);
+}
+function plannerSettingsSnapshot(){
+  return {
+    blockedDays,
+    behandelingen,
+    ejsSettings,
+    msgTemplate,
+    updatedAt: new Date().toISOString()
+  };
+}
+function applyCloudData(data){
+  if(!data) return;
+  isHydrating=true;
+  appointments=(data.appointments||[]).map(normalizeAppointment);
+  klanten=(data.klanten||[]).map(normalizeKlant);
+  behandelingen=Array.isArray(data.settings?.behandelingen)?data.settings.behandelingen.map(normalizeBehandeling):behandelingen;
+  blockedDays=Array.isArray(data.settings?.blockedDays)?data.settings.blockedDays:blockedDays;
+  ejsSettings=data.settings?.ejsSettings||ejsSettings;
+  msgTemplate=data.settings?.msgTemplate||msgTemplate;
+  writeCache();
+  isHydrating=false;
+  populateKlantDropdown();
+  populateTreatmentSelect('f-type');
+  renderBehandelingen();
+  renderAgenda();
+}
+async function withCloudTimeout(promise, label){
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(label+' duurde te lang. Controleer je Supabase project en RLS.')), 12000);
+  });
+  try{
+    return await Promise.race([promise, timeout]);
+  }finally{
+    clearTimeout(timer);
+  }
+}
+function normalizeCloudRows(rows){
+  return (rows||[]).map(row => row.data || {}).filter(Boolean);
+}
+function ensureUniqueIds(items, prefix){
+  const seen = new Set();
+  let changed = false;
+  const fixed = (items||[]).map((item, index) => {
+    const copy = {...item};
+    let id = String(copy.id || '');
+    if(!id || seen.has(id)){
+      id = `${prefix}_${Date.now()}_${index}_${Math.floor(Math.random()*100000)}`;
+      copy.id = id;
+      changed = true;
+    }
+    seen.add(id);
+    return copy;
+  });
+  return {items:fixed, changed};
+}
+async function syncCloudRows(client, table, rows){
+  const existing = await client.from(table).select('id').eq('user_id', cloudUser.id);
+  if(existing.error) return existing;
+
+  if(rows.length){
+    const upsert = await client.from(table).upsert(rows, {onConflict:'user_id,id'});
+    if(upsert.error) return upsert;
+  }
+
+  const currentIds = new Set(rows.map(row => row.id));
+  const staleIds = (existing.data||[]).map(row => row.id).filter(id => !currentIds.has(id));
+  if(staleIds.length){
+    const cleanup = await client.from(table).delete().eq('user_id', cloudUser.id).in('id', staleIds);
+    if(cleanup.error) return cleanup;
+  }
+
+  return {error:null};
+}
+function normalizeAppointment(a){
+  const date=a?.date?String(a.date).trim().substring(0,10):'';
+  return {...a,date,startMin:Number(a.startMin)||0,duration:Number(a.duration)||60};
+}
+function normalizeKlant(k){
+  return {...k,apts:Number(k.apts)||0,lastDate:k.lastDate?String(k.lastDate).trim().substring(0,10):''};
+}
+function hideStartupOverlay(){
+  const overlay=document.getElementById('startup-overlay');
+  if(overlay) overlay.style.display='none';
+}
+
+
+function save(){
+  writeCache();
+  scheduleCloudSave();
+}
+// SUPABASE CLOUD
+const cloudStorage = {
+  getItem(key){ try{return localStorage.getItem(key);}catch(e){return null;} },
+  setItem(key,value){ try{localStorage.setItem(key,value);}catch(e){} },
+  removeItem(key){ try{localStorage.removeItem(key);}catch(e){} }
+};
+let supabaseClient = null;
+function getSupabaseClient(){
+  if(supabaseClient) return supabaseClient;
+  if(!window.supabase) return null;
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:false, storageKey:CLOUD_AUTH_STORAGE_KEY, storage:cloudStorage}
+  });
+  supabaseClient.auth.onAuthStateChange(async (_event, session)=>{
+    cloudUser=session?.user||null;
+    updateCloudUi();
+    if(cloudUser && !cloudReady) await loadFromCloud({silent:true});
+  });
+  return supabaseClient;
+}
+function setCloudStatus(state,msg){
+  const dot=document.getElementById('cloud-dot'), label=document.getElementById('cloud-label');
+  if(!dot||!label) return;
+  const colors={ok:'#2d6a4f',error:'#d62828',loading:'#f77f00',off:'var(--muted)'};
+  dot.style.background=colors[state]||colors.off;
+  label.textContent=msg;
+  label.style.color=colors[state]||colors.off;
+}
+function updateCloudUi(){
+  const authed=!!cloudUser;
+  const email=document.getElementById('cloud-email');
+  const fields=document.getElementById('cloud-auth-fields');
+  const login=document.getElementById('cloud-login-btn');
+  const logout=document.getElementById('cloud-logout-btn');
+  const refresh=document.getElementById('cloud-refresh-btn');
+  if(email) email.textContent=authed ? 'Ingelogd als '+cloudUser.email : 'Owner login voor de Fit met Dicky planning.';
+  if(fields) fields.style.display=authed?'none':'grid';
+  if(login) login.style.display=authed?'none':'block';
+  if(logout) logout.style.display=authed?'block':'none';
+  if(refresh) refresh.style.display=authed?'inline-block':'none';
+  if(authed) setCloudStatus(cloudReady?'ok':'loading', cloudReady?'Cloud verbonden':'Cloud verbinden...');
+  else setCloudStatus('off','Niet ingelogd');
+}
+async function syncCloudSession(){
+  const client=getSupabaseClient();
+  if(!client){ setCloudStatus('error','Supabase library ontbreekt'); return false; }
+  const { data } = await client.auth.getSession();
+  cloudUser=data?.session?.user||null;
+  updateCloudUi();
+  return !!cloudUser;
+}
+async function cloudLogin(mode){
+  const client=getSupabaseClient();
+  const email=document.getElementById('cloud-email-input')?.value.trim();
+  const password=document.getElementById('cloud-password-input')?.value;
+  if(!client || !email || !password){ showToast('Vul e-mail en wachtwoord in'); return; }
+  cloudLoading=true; setCloudStatus('loading','Inloggen...');
+  const result = await client.auth.signInWithPassword({email,password});
+  cloudLoading=false;
+  if(result.error){ setCloudStatus('error',result.error.message); showToast(result.error.message); return; }
+  cloudUser=result.data?.user||result.data?.session?.user||null;
+  updateCloudUi();
+  const loaded = await loadFromCloud({silent:true});
+  if(loaded) scheduleCloudSave();
+}
+async function cloudLogout(){
+  const client=getSupabaseClient();
+  if(!client) return;
+  await client.auth.signOut();
+  cloudUser=null; cloudReady=false; updateCloudUi();
+}
+async function loadFromCloud(options={}){
+  const client=getSupabaseClient();
+  if(!client) return false;
+  if(!cloudUser){ await syncCloudSession(); }
+  if(!cloudUser) return false;
+  setCloudStatus('loading','Cloud ophalen...');
+  try{
+    const [settingsResult, klantenResult, appointmentsResult] = await withCloudTimeout(Promise.all([
+      client.from(CLOUD_SETTINGS_TABLE).select('data,updated_at').eq('user_id', cloudUser.id).maybeSingle(),
+      client.from(CLOUD_KLANTEN_TABLE).select('data,updated_at').eq('user_id', cloudUser.id),
+      client.from(CLOUD_APPOINTMENTS_TABLE).select('data,updated_at').eq('user_id', cloudUser.id)
+    ]), 'Cloud ophalen');
+
+    const firstError = settingsResult.error || klantenResult.error || appointmentsResult.error;
+    if(firstError){
+      setCloudStatus('error','Cloud fout: '+firstError.message.slice(0,60));
+      if(!options.silent) showToast('Cloud fout: '+firstError.message);
+      return false;
+    }
+
+    const cloudKlanten = normalizeCloudRows(klantenResult.data);
+    const cloudAppointments = normalizeCloudRows(appointmentsResult.data);
+    const hasCloudData = !!settingsResult.data?.data || cloudKlanten.length || cloudAppointments.length;
+
+    if(hasCloudData){
+      applyCloudData({
+        settings: settingsResult.data?.data || {},
+        klanten: cloudKlanten,
+        appointments: cloudAppointments
+      });
+      cloudReady=true;
+      setCloudStatus('ok','Cloud geladen · '+new Date().toLocaleTimeString('nl'));
+      if(!options.silent) showToast('Cloud geladen');
+      return true;
+    }
+
+    cloudReady=true;
+    await saveToCloud(true, {silent:true});
+    setCloudStatus('ok','Cloud gestart');
+    return true;
+  }catch(error){
+    setCloudStatus('error','Cloud fout: '+error.message.slice(0,80));
+    if(!options.silent) showToast('Cloud fout: '+error.message);
+    return false;
+  }
+}
+async function saveToCloud(force=false, options={}){
+  if(isHydrating && !force) return false;
+  const client=getSupabaseClient();
+  if(!client) return false;
+  if(!cloudUser){ await syncCloudSession(); }
+  if(!cloudUser) return false;
+  if(cloudSaveInFlight){
+    cloudSaveQueued=true;
+    return false;
+  }
+  cloudSaveInFlight=true;
+  setCloudStatus('loading','Opslaan...');
+  try{
+    const now = new Date().toISOString();
+    const fixedKlanten = ensureUniqueIds(klanten, 'klant');
+    const fixedAppointments = ensureUniqueIds(appointments, 'afspraak');
+    if(fixedKlanten.changed) klanten = fixedKlanten.items;
+    if(fixedAppointments.changed) appointments = fixedAppointments.items;
+    if(fixedKlanten.changed || fixedAppointments.changed) writeCache();
+
+    const settingsPayload = {user_id:cloudUser.id, data:plannerSettingsSnapshot(), updated_at:now};
+    const klantRows = klanten.map(k => ({user_id:cloudUser.id, id:String(k.id), data:k, updated_at:now}));
+    const appointmentRows = appointments.map(a => ({user_id:cloudUser.id, id:String(a.id), data:a, updated_at:now}));
+
+    const results = await withCloudTimeout(Promise.all([
+      client.from(CLOUD_SETTINGS_TABLE).upsert(settingsPayload, {onConflict:'user_id'}),
+      syncCloudRows(client, CLOUD_KLANTEN_TABLE, klantRows),
+      syncCloudRows(client, CLOUD_APPOINTMENTS_TABLE, appointmentRows)
+    ]), 'Opslaan');
+    const firstError = results.find(result => result.error)?.error;
+    if(firstError){
+      setCloudStatus('error','Cloud fout: '+firstError.message.slice(0,60));
+      if(!options.silent) showToast('Cloud fout: '+firstError.message);
+      return false;
+    }
+
+    cloudReady=true;
+    setCloudStatus('ok','Automatisch opgeslagen · '+new Date().toLocaleTimeString('nl'));
+    if(force && !options.silent) showToast('Opgeslagen');
+    return true;
+  }catch(error){
+    setCloudStatus('error','Cloud fout: '+error.message.slice(0,80));
+    if(!options.silent) showToast('Cloud fout: '+error.message);
+    return false;
+  }finally{
+    cloudSaveInFlight=false;
+    if(cloudSaveQueued){
+      cloudSaveQueued=false;
+      setTimeout(()=>saveToCloud(false, {silent:true}), 250);
+    }
+  }
+}
+function scheduleCloudSave(){
+  if(isHydrating || !cloudUser) return;
+  clearTimeout(cloudSaveTimer);
+  setCloudStatus('loading','Wijzigingen bewaren...');
+  cloudSaveTimer=setTimeout(()=>saveToCloud(false, {silent:true}), 500);
+}
+
+// NAVIGATION
+function goTab(name){
+  const fab=document.getElementById('fab-btn');
+  if(fab) fab.style.display = name==='agenda' ? 'flex' : 'none';
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('v-'+name).classList.add('active');
+  const activeTab=document.querySelector('.nav-tab[data-tab="'+name+'"]');
+  if(activeTab) activeTab.classList.add('active');
+  document.querySelectorAll('.settings-gear-btn').forEach(btn=>btn.classList.toggle('active', name==='instellingen'));
+  if(name==='agenda') renderAgenda();
+  if(name==='nieuw') renderNieuw();
+  if(name==='klanten') renderKlanten('');
+  if(name==='behandelingen') renderBehandelingen();
+  if(name==='instellingen') initSettings();
+}
+
+// AGENDA
+function playDaySwitchFeedback(){
+  const title = document.getElementById('day-title');
+  const slots = document.getElementById('day-slots');
+  [title, slots].forEach(el => {
+    if(!el) return;
+    el.classList.remove('day-switching');
+    void el.offsetWidth;
+    el.classList.add('day-switching');
+  });
+}
+function shiftWeek(d){ weekOffset+=d; renderAgenda(); }
+
+function renderAgenda(){
+  const base = new Date(today); base.setDate(base.getDate()+weekOffset*7);
+  const dow = base.getDay()===0?6:base.getDay()-1;
+  const ws = new Date(base); ws.setDate(base.getDate()-dow);
+  const we = new Date(ws); we.setDate(ws.getDate()+6);
+  const months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  document.getElementById('week-label').textContent = ws.getDate()+' – '+we.getDate()+' '+months[we.getMonth()];
+  const days = document.getElementById('week-days'); days.innerHTML='';
+  const dayNames=['Ma','Di','Wo','Do','Vr','Za','Zo'];
+  for(let i=0;i<7;i++){
+    const d=new Date(ws); d.setDate(ws.getDate()+i);
+    const dk=dateKey(d), isToday=dk===dateKey(today), isSel=dk===dateKey(selectedDate);
+    const hasApt=appointments.some(a=>a.date===dk&&a.type!=='blocked');
+    const chip=document.createElement('div');
+    chip.className='day-chip'+(isToday?' today':'')+(isSel&&!isToday?' selected':'')+(hasApt?' has-apt':'');
+    chip.innerHTML='<div class="day-num">'+d.getDate()+'</div><div class="day-name">'+dayNames[i]+'</div>';
+    chip.onclick=()=>{selectedDate=new Date(d);renderAgenda();};
+    days.appendChild(chip);
+  }
+  renderDaySlots(selectedDate);
+  playDaySwitchFeedback();
+}
+
+function renderDaySlots(date){
+  document.getElementById('day-title').textContent=fmtDate(date).toUpperCase();
+  const dk=dateKey(date);
+  const dayApts=appointments.filter(a=>a.date===dk).sort((a,b)=>a.startMin-b.startMin);
+  const slots=document.getElementById('day-slots');
+  if(!dayApts.length){ slots.innerHTML='<div class="empty-day"><div class="empty-icon">&#128197;</div><div>Geen afspraken</div></div>'; return; }
+  slots.innerHTML='';
+  dayApts.forEach(apt=>{
+    const timeSlot=document.createElement('div');
+    timeSlot.className='time-slot';
+    const slotTime=document.createElement('div');
+    slotTime.className='slot-time';
+    slotTime.textContent=fmtTime(apt.startMin);
+    const slotContent=document.createElement('div');
+    slotContent.className='slot-content';
+    const swipeWrapper=document.createElement('div');
+    swipeWrapper.className='swipe-wrapper';
+    const deleteBg=document.createElement('div');
+    deleteBg.className='swipe-delete-bg';
+    deleteBg.innerHTML='&#128465; Verwijder';
+    const card=document.createElement('div');
+    card.className=`apt-card ${apt.type==='blocked'?'blocked':'confirmed'}`;
+    card.innerHTML=`<div class="apt-name">${apt.name}</div><div class="apt-meta">${fmtTime(apt.startMin)} \u2013 ${fmtTime(apt.startMin+apt.duration)} \u00b7 ${apt.treatment||'Massage'}</div><span class="apt-badge ${apt.type==='blocked'?'blocked':'confirmed'}">${apt.type==='blocked'?'Geblokkeerd':'Bevestigd'}</span>`;
+    let startX=0,currentX=0,moved=false;
+    const THRESHOLD=80;
+    card.addEventListener('touchstart',e=>{
+      startX=e.touches[0].clientX; currentX=0; moved=false;
+      card.style.transition='none';
+    },{passive:true});
+    card.addEventListener('touchmove',e=>{
+      const dx=e.touches[0].clientX-startX;
+      if(dx<0){
+        moved=true;
+        currentX=Math.max(dx,-THRESHOLD*1.5);
+        card.style.transform=`translateX(${currentX}px)`;
+        deleteBg.style.opacity=String(Math.min(Math.abs(currentX)/THRESHOLD,1));
+      }
+    },{passive:true});
+    card.addEventListener('touchend',()=>{
+      card.style.transition='transform .3s ease';
+      if(Math.abs(currentX)>=THRESHOLD){
+        card.style.transform='translateX(-100%)';
+        setTimeout(()=>deleteApt(apt.id),300);
+      } else {
+        card.style.transform='translateX(0)';
+        deleteBg.style.opacity='0';
+      }
+      currentX=0;
+    });
+    card.addEventListener('click',()=>{ if(!moved) openAptModal(apt.id); moved=false; });
+    swipeWrapper.appendChild(deleteBg);
+    swipeWrapper.appendChild(card);
+    slotContent.appendChild(swipeWrapper);
+    timeSlot.appendChild(slotTime);
+    timeSlot.appendChild(slotContent);
+    slots.appendChild(timeSlot);
+  });
+  const realApts=dayApts.filter(a=>a.type!=='blocked');
+  if(realApts.length){
+    const exclTotal=realApts.reduce((sum,a)=>sum+(Number(a.hourlyRate||0)*Number(a.duration||0)/60),0);
+    const fmt=v=>'€ '+v.toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+,)/g,'$1.');
+    const summary=document.createElement('div');
+    summary.className='day-summary';
+    const countEl=document.createElement('span');
+    countEl.textContent=`${realApts.length} ${realApts.length!==1?'afspraken':'afspraak'}`;
+    const right=document.createElement('div');
+    right.className='day-summary-right';
+    const totalEl=document.createElement('span');
+    totalEl.className='day-summary-total';
+    totalEl.textContent=fmt(exclTotal);
+    const toggle=document.createElement('button');
+    toggle.className='btw-toggle';
+    toggle.textContent='excl. btw';
+    let inclBtw=false;
+    toggle.onclick=()=>{
+      inclBtw=!inclBtw;
+      toggle.textContent=inclBtw?'incl. btw':'excl. btw';
+      toggle.classList.toggle('active',inclBtw);
+      totalEl.textContent=fmt(inclBtw?exclTotal*1.21:exclTotal);
+    };
+    right.appendChild(totalEl);
+    right.appendChild(toggle);
+    summary.appendChild(countEl);
+    summary.appendChild(right);
+    slots.appendChild(summary);
+  }
+}
+
+// ── QUICK ADD (slide-per-slide) ──
+let qa = { step:1, klantId:'', voornaam:'', achternaam:'', tel:'', email:'',
+           datum:'', time:null, dur:defaultBehandeling().duur, treatmentId:defaultBehandeling().id, treatment:defaultBehandeling().naam, hourlyRate:defaultBehandeling().uurtarief, notitie:'' };
+
+function openQuickAdd(){
+  const treatment=defaultBehandeling();
+  qa = { step:1, klantId:'', voornaam:'', achternaam:'', tel:'', email:'',
+         datum:dateKey(selectedDate), time:null, dur:treatment.duur, treatmentId:treatment.id, treatment:treatment.naam, hourlyRate:treatment.uurtarief, notitie:'' };
+  document.getElementById('quick-overlay').style.display='flex';
+  requestAnimationFrame(()=>{ document.getElementById('quick-sheet').style.transform='translateY(0)'; });
+  qaRender();
+}
+
+function closeQuickAdd(){
+  document.getElementById('quick-sheet').style.transform='translateY(100%)';
+  setTimeout(()=>{ document.getElementById('quick-overlay').style.display='none'; }, 300);
+}
+
+function qaSetDots(step){
+  [1,2,3].forEach(i=>{
+    document.getElementById('qa-dot'+i).style.background = i===step ? 'var(--red)' : 'var(--border)';
+  });
+  const titles = ['Klantgegevens','Datum & tijd','Behandeling & notitie'];
+  document.getElementById('qa-title').textContent = titles[step-1];
+  document.getElementById('qa-back').style.display = step>1 ? 'block' : 'none';
+  document.getElementById('qa-next').textContent = step===3 ? 'Inplannen' : 'Volgende';
+}
+
+function qaRender(){
+  qaSetDots(qa.step);
+  const body = document.getElementById('qa-body');
+
+  if(qa.step===1){
+    const sorted = [...klanten].sort((a,b)=>a.name.localeCompare(b.name));
+    body.innerHTML = `
+      <div style="margin-bottom:12px">
+        <div class="form-label">Bestaande klant</div>
+        <select class="form-select" id="qa-klant" onchange="qaSelectKlant(this.value)">
+          <option value="">— Nieuwe klant —</option>
+          ${sorted.map(k=>`<option value="${k.id}" ${qa.klantId===k.id?'selected':''}>${k.name}${k.tel?' · '+k.tel:''}</option>`).join('')}
+        </select>
+      </div>
+      <div id="qa-klant-info" style="${qa.klantId ? '' : 'display:none'}">
+        <div style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px">
+          <div style="font-weight:600;color:var(--blue)">${qa.voornaam} ${qa.achternaam}</div>
+          <div style="color:var(--muted);margin-top:2px">${qa.tel || ''}${qa.tel&&qa.email?' · ':''}${qa.email || ''}</div>
+        </div>
+      </div>
+      <div id="qa-klant-fields" style="${qa.klantId ? 'display:none' : ''}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><div class="form-label">Voornaam</div><input class="form-input" id="qa-vn" type="text" placeholder="Voornaam" value="${qa.voornaam}" oninput="qa.voornaam=this.value" style="margin:0"></div>
+          <div><div class="form-label">Achternaam</div><input class="form-input" id="qa-an" type="text" placeholder="Achternaam" value="${qa.achternaam}" oninput="qa.achternaam=this.value" style="margin:0"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><div class="form-label">Telefoon</div><input class="form-input" id="qa-tel" type="tel" placeholder="06-" value="${qa.tel}" oninput="qa.tel=this.value" style="margin:0"></div>
+          <div><div class="form-label">E-mail</div><input class="form-input" id="qa-email" type="email" placeholder="@" value="${qa.email}" oninput="qa.email=this.value" style="margin:0"></div>
+        </div>
+      </div>`;
+
+  } else if(qa.step===2){
+    const dk = qa.datum || dateKey(selectedDate);
+    const dur = qa.dur;
+    const dayApts = appointments.filter(a=>a.date===dk);
+    const slots = [];
+    for(let m=WORK_START*60; m+dur<=WORK_END*60; m+=SLOT_STEP){
+      const conflict = dayApts.some(a=>m<a.startMin+a.duration && m+dur>a.startMin);
+      slots.push({min:m, conflict, label:fmtTime(m)});
+    }
+    body.innerHTML = `
+      <div style="margin-bottom:14px">
+        <div class="form-label">Datum</div>
+        <input class="form-input" id="qa-datum" type="date" value="${dk}" onchange="qa.datum=this.value;qa.time=null;qaRender()" style="margin:0">
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="form-label">Behandeling duur</div>
+        <select class="form-select" id="qa-type" onchange="setQuickTreatment(this.value)" style="margin:0">
+          ${behandelingen.map(b=>`<option value="${escapeHtml(b.id)}" ${qa.treatmentId===b.id?'selected':''}>${escapeHtml(treatmentLabel(b))}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-label">Beschikbare tijden</div>
+      <div class="avail-strip">${slots.map(sl=>`
+        <div class="avail-slot ${sl.conflict?'busy':'free'}${qa.time===sl.min?' selected':''}"
+          onclick="${sl.conflict?'':'qaPickTime('+sl.min+')'}">${sl.label}</div>`).join('')}
+      </div>
+      ${qa.time!==null?`<div style="margin-top:10px;text-align:center;font-size:13px;color:var(--blue);font-weight:600">${fmtTime(qa.time)} – ${fmtTime(qa.time+qa.dur)} geselecteerd</div>`:''}`;
+
+  } else if(qa.step===3){
+    body.innerHTML = `
+      <div style="background:var(--off);border-radius:14px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:15px;font-weight:700;color:var(--blue);margin-bottom:4px">${qa.voornaam} ${qa.achternaam}</div>
+        <div style="font-size:13px;color:var(--muted)">${fmtDate(parseDate(qa.datum))} · ${fmtTime(qa.time)} – ${fmtTime(qa.time+qa.dur)}</div>
+        <div style="font-size:13px;color:var(--muted)">${qa.treatment}</div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="form-label">Notitie (optioneel)</div>
+        <textarea class="form-textarea" id="qa-notitie" placeholder="Bijv. rugklachten, voorkeur..." oninput="qa.notitie=this.value" style="height:80px">${qa.notitie}</textarea>
+      </div>`;
+  }
+}
+
+function qaSelectKlant(id){
+  qa.klantId = id;
+  if(!id){ qa.voornaam='';qa.achternaam='';qa.tel='';qa.email=''; qaRender(); return; }
+  const k = klanten.find(c=>c.id===id);
+  if(!k) return;
+  qa.voornaam   = k.voornaam || k.name.split(' ')[0] || '';
+  qa.achternaam = k.achternaam || k.name.split(' ').slice(1).join(' ') || '';
+  qa.tel   = k.tel   || '';
+  qa.email = k.email || '';
+  qaRender();
+}
+
+function qaPickTime(min){
+  qa.time = min;
+  qaRender();
+}
+
+function qaBack(){ if(qa.step>1){ qa.step--; qaRender(); } }
+
+function qaNext(){
+  if(qa.step===1){
+    if(!qa.voornaam){ showToast('Vul een voornaam in'); return; }
+    qa.step=2; qaRender();
+  } else if(qa.step===2){
+    if(!qa.datum){ showToast('Kies een datum'); return; }
+    if(qa.time===null){ showToast('Kies een tijdstip'); return; }
+    qa.step=3; qaRender();
+  } else {
+    // Save appointment
+    const naam = (qa.voornaam+' '+qa.achternaam).trim();
+    const apt = {
+      id: Date.now().toString(), name: naam,
+      voornaam: qa.voornaam, achternaam: qa.achternaam,
+      tel: qa.tel, email: qa.email,
+      date: qa.datum, startMin: qa.time, duration: qa.dur,
+      treatmentId: qa.treatmentId, treatment: qa.treatment, hourlyRate: qa.hourlyRate, notitie: qa.notitie,
+      status:'confirmed', type:'appointment',
+      notifMethod:'geen', createdAt: new Date().toISOString()
+    };
+    appointments.push(apt);
+    // Auto-save klant
+    const existing = klanten.find(k=>(k.tel&&k.tel===qa.tel)||(k.email&&k.email===qa.email));
+    if(existing){ existing.apts=(existing.apts||0)+1; existing.lastDate=qa.datum; }
+    else if(naam){ klanten.push({id:(Date.now()+1).toString(),name:naam,voornaam:qa.voornaam,achternaam:qa.achternaam,tel:qa.tel,email:qa.email,apts:1,lastDate:qa.datum}); }
+    save();
+    closeQuickAdd();
+    selectedDate = parseDate(qa.datum);
+    renderAgenda();
+    showToast('Afspraak voor '+qa.voornaam+' ingepland!');
+    if(apt.email||apt.tel) setTimeout(()=>openSendModal(apt), 400);
+  }
+}
+
+async function syncKlanten(){
+  const ok = await loadFromCloud();
+  if(ok){
+    renderKlanten('');
+    showToast('Klanten bijgewerkt');
+  }else{
+    showToast(cloudUser ? 'Cloud ophalen mislukt' : 'Log eerst in');
+  }
+}
+
+async function refreshAgenda(){
+  const btn=document.querySelector('.week-btn[onclick*="refreshAgenda"]');
+  if(btn){btn.style.opacity='.5';}
+  const ok = await loadFromCloud();
+  if(ok) showToast('Agenda bijgewerkt');
+  else showToast(cloudUser ? 'Cloud ophalen mislukt' : 'Log eerst in');
+  if(btn){btn.style.opacity='1';}
+  renderAgenda();
+}
+// AVAILABILITY
+function updateAvailability(){
+  const dateVal=document.getElementById('f-datum').value;
+  selectedTime=null;
+  validateForm();
+  if(!dateVal){document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--muted)">Kies eerst een datum</span>';return;}
+  const dur=getSelectedTreatment('f-type').duur;
+  const date=parseDate(dateVal);
+  if(blockedDays.includes(date.getDay())){
+    document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--red);font-weight:600">Deze dag is geblokkeerd</span>';
+    return;
+  }
+  const dk=dateKey(date);
+  const dayApts=appointments.filter(a=>a.date===dk);
+  const slotsHtml=[];
+  for(let min=WORK_START*60;min+dur<=WORK_END*60;min+=SLOT_STEP){
+    const conflict=dayApts.some(a=>min<a.startMin+a.duration&&min+dur>a.startMin);
+    const cls=conflict?(dayApts.find(a=>a.date===dk&&min>=a.startMin&&min<a.startMin+a.duration)?.type==='blocked'?'blocked':'busy'):'free';
+    slotsHtml.push('<div class="avail-slot '+cls+'" onclick="'+(conflict?'':('selectTime('+min+',this)'))+'">'+fmtTime(min)+'</div>');
+  }
+  document.getElementById('avail-strip').innerHTML=slotsHtml.join('');
+}
+
+function selectTime(min,el){
+  selectedTime=min;
+  document.querySelectorAll('.avail-slot.free').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  validateForm();
+}
+
+// VALIDATION
+function validateForm(){
+  const vn=document.getElementById('f-voornaam')?.value.trim();
+  const tel=document.getElementById('f-tel')?.value.trim();
+  const email=document.getElementById('f-email')?.value.trim();
+  const btn=document.getElementById('submit-btn');
+  const hint=document.getElementById('form-hint');
+  if(!btn) return;
+  const missing=[];
+  if(!vn) missing.push('voornaam');
+  if(selectedTime===null) missing.push('tijdstip');
+  if(!tel&&!email) missing.push('telefoon of e-mail');
+  if(missing.length===0){
+    btn.disabled=false; btn.style.opacity='1'; if(hint) hint.textContent='';
+  } else {
+    btn.disabled=true; btn.style.opacity='.4';
+    if(hint) hint.textContent='Nog invullen: '+missing.join(', ');
+  }
+}
+
+// MAIL PREVIEW
+function buildMailBody(apt){
+  const dateStr=fmtDate(parseDate(apt.date));
+  const tijdStr=fmtTime(apt.startMin)+' - '+fmtTime(apt.startMin+apt.duration);
+  const firstName=apt.voornaam||apt.name.split(' ')[0]||'';
+  const rawTemplate=String(msgTemplate||'').replace(/\\n/g,'\n');
+  return rawTemplate
+    .replace(/\[voornaam\]/g,firstName)
+    .replace(/\[achternaam\]/g,apt.achternaam||'')
+    .replace(/\[naam\]/g,apt.name||firstName)
+    .replace(/\[datum\]/g,dateStr)
+    .replace(/\[tijd\]/g,tijdStr)
+    .replace(/\[behandeling\]/g,apt.treatment||'Massage');
+}
+function buildMailHtmlBody(apt){
+  return escapeHtml(buildMailBody(apt)).replace(/\n/g,'<br>');
+}
+function updateSettingsPreview(){
+  const p=document.getElementById('msg-preview-settings'); if(!p) return;
+  const demo={voornaam:'Sanne', achternaam:'Jansen', name:'Sanne Jansen', date:dateKey(selectedDate), startMin:10*60, duration:60, treatment:'Massage 60 min'};
+  p.textContent=buildMailBody(demo);
+}
+
+// SAVE APPOINTMENT
+function saveAppointment(){
+  const voornaam=document.getElementById('f-voornaam').value.trim();
+  const achternaam=document.getElementById('f-achternaam').value.trim();
+  const naam=(voornaam+' '+achternaam).trim();
+  const tel=document.getElementById('f-tel').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const datum=document.getElementById('f-datum').value;
+  const treatment=getSelectedTreatment('f-type');
+  const dur=treatment.duur;
+  const type=treatment.naam;
+  const notitie=document.getElementById('f-notitie').value.trim();
+  if(!voornaam||!datum||selectedTime===null) return;
+  const apt={id:Date.now().toString(),name:naam,voornaam,achternaam,tel,email,date:datum,startMin:selectedTime,duration:dur,treatmentId:treatment.id,treatment:type,hourlyRate:treatment.uurtarief,notitie,status:'confirmed',type:'appointment',createdAt:new Date().toISOString()};
+  appointments.push(apt);
+  // Save/update klant
+  const existing=klanten.find(k=>(k.tel&&k.tel===tel)||(k.email&&k.email===email));
+  if(existing){existing.apts=(existing.apts||0)+1;existing.lastDate=datum;existing.voornaam=voornaam;existing.achternaam=achternaam;existing.name=naam;if(tel)existing.tel=tel;if(email)existing.email=email;}
+  else{klanten.push({id:(Date.now()+1).toString(),name:naam,voornaam,achternaam,tel,email,apts:1,lastDate:datum});}
+  save();
+  // Reset form
+  ['f-voornaam','f-achternaam','f-tel','f-email','f-notitie'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-datum').value=''; document.getElementById('f-klant-select').value='';
+  document.getElementById('avail-strip').innerHTML='<span style="font-size:12px;color:var(--muted)">Kies eerst een datum</span>';
+  // Reset klant summary
+  const summary=document.getElementById('klant-summary');
+  const velden=document.getElementById('klant-velden');
+  if(summary) summary.style.display='none';
+  if(velden)  velden.style.display='';
+  selectedTime=null; validateForm();
+  selectedDate=parseDate(datum);
+  goTab('agenda');
+  openSendModal(apt);
+}
+
+// SEND MODAL
+function openSendModal(apt){
+  pendingSendApt=apt;
+  const dateStr=fmtDate(parseDate(apt.date));
+  document.getElementById('send-apt-line').textContent=(apt.voornaam||apt.name)+' '+(apt.achternaam||'')+' · '+dateStr+' '+fmtTime(apt.startMin);
+  const container=document.getElementById('send-options'); container.innerHTML='';
+  const calContainer=document.getElementById('send-calendar-btn'); calContainer.innerHTML='';
+  if(apt.email){
+    const btn=document.createElement('button'); btn.className='send-opt'; btn.onclick=()=>confirmSendEmail(apt);
+    btn.innerHTML='<span class="send-opt-icon">\u2709\ufe0f</span><div class="send-opt-text"><div class="send-opt-label">Bevestigingsmail sturen</div><div class="send-opt-sub">'+apt.email+'</div></div><span class="send-opt-arrow">\u203a</span>';
+    container.appendChild(btn);
+  } else {
+    const d=document.createElement('div'); d.className='send-info'; d.textContent='Geen e-mailadres bekend';
+    container.appendChild(d);
+  }
+  if(window.innerWidth<768){
+    const calBtn=document.createElement('button'); calBtn.className='send-opt'; calBtn.onclick=()=>doExportCalendar(apt.id);
+    calBtn.innerHTML='<span class="send-opt-icon">\ud83d\udcc5</span><div class="send-opt-text"><div class="send-opt-label">Toevoegen aan Agenda</div><div class="send-opt-sub">Voeg toe aan agenda</div></div><span class="send-opt-arrow">\u203a</span>';
+    calContainer.appendChild(calBtn);
+  }
+  document.getElementById('send-overlay').style.display='flex';
+}
+
+function confirmSendEmail(apt){
+  const c=document.getElementById('send-options'); c.innerHTML='';
+  const msg=document.createElement('div'); msg.className='send-confirm-msg';
+  msg.innerHTML='Bevestigingsmail sturen naar <strong>'+apt.email+'</strong>?';
+  const row=document.createElement('div'); row.className='send-confirm-row';
+  const no=document.createElement('button'); no.className='send-confirm-no'; no.textContent='Annuleer'; no.onclick=()=>openSendModal(apt);
+  const yes=document.createElement('button'); yes.className='send-confirm-yes'; yes.textContent='Ja, verstuur'; yes.onclick=()=>sendViaEmail(apt.id);
+  row.appendChild(no); row.appendChild(yes);
+  c.appendChild(msg); c.appendChild(row);
+}
+
+function closeSendModal(){ document.getElementById('send-overlay').style.display='none'; pendingSendApt=null; }
+
+async function sendViaEmail(id){
+  const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(!apt) return;
+  const c=document.getElementById('send-options'); c.innerHTML='';
+  const d=document.createElement('div'); d.className='send-info'; d.textContent='E-mail voorbereiden...';
+  c.appendChild(d);
+  const result=await sendConfirmationMail(apt);
+  if(result.method==='emailjs'){ d.textContent='Bevestigingsmail verstuurd.'; return; }
+  d.textContent=result.message||'Automatisch mailen lukte niet.';
+  if(apt.email){
+    const a=document.createElement('a'); a.className='send-opt'; a.href=buildMailtoHref(apt);
+    a.innerHTML='<span class="send-opt-icon">&#9993;</span><div class="send-opt-text"><div class="send-opt-label">Open mail-app handmatig</div><div class="send-opt-sub">Alleen als automatisch niet werkt</div></div><span class="send-opt-arrow">&#8250;</span>';
+    c.appendChild(a);
+  }
+}
+
+function doExportCalendar(id){
+  const apt=appointments.find(a=>a.id===id)||pendingSendApt; if(apt) exportToCalendar(apt);
+  closeSendModal();
+}
+
+// APT MODAL
+function openAptModal(id){
+  const apt=appointments.find(a=>a.id===id); if(!apt) return;
+  document.getElementById('apt-modal-title').textContent=apt.type==='blocked'?'Geblokkeerd':apt.name;
+  const dateObj=parseDate(apt.date);
+  document.getElementById('apt-modal-body').innerHTML=`
+    <div class="detail-row"><span class="detail-label">Datum</span><span class="detail-value">${fmtDate(dateObj)}</span></div>
+    <div class="detail-row"><span class="detail-label">Tijd</span><span class="detail-value">${fmtTime(apt.startMin)} – ${fmtTime(apt.startMin+apt.duration)}</span></div>
+    ${apt.type!=='blocked'?`
+    <div class="detail-row"><span class="detail-label">Behandeling</span><span class="detail-value">${apt.treatment}</span></div>
+    <div class="detail-row"><span class="detail-label">Telefoon</span><span class="detail-value">${apt.tel||'&#8212;'}</span></div>
+    <div class="detail-row"><span class="detail-label">E-mail</span><span class="detail-value">${apt.email||'&#8212;'}</span></div>
+    ${apt.notitie?'<div class="detail-row"><span class="detail-label">Notitie</span><span class="detail-value">'+apt.notitie+'</span></div>':''}`:''}
+    <div class="modal-action-row">
+      ${apt.type!=='blocked'&&(apt.email||apt.tel)?`<button class="modal-btn primary" onclick="openSendModal(appointments.find(a=>a.id==='${apt.id}'))">Stuur bericht</button>`:''}\n      <button class="modal-btn danger" onclick="deleteApt('${apt.id}')">Verwijder</button>
+    </div>`;
+  document.getElementById('apt-overlay').classList.add('open');
+}
+function closeAptModal(){ document.getElementById('apt-overlay').classList.remove('open'); }
+function deleteApt(id){ appointments=appointments.filter(a=>a.id!==id); save(); closeAptModal(); renderAgenda(); showToast('Afspraak verwijderd.'); }
+
+// CALENDAR EXPORT
+function exportToCalendar(apt){
+  const [y,mo,d]=apt.date.split('-').map(Number);
+  const sH=Math.floor(apt.startMin/60),sM=apt.startMin%60;
+  const em=apt.startMin+apt.duration,eH=Math.floor(em/60),eMi=em%60;
+  const pad=n=>String(n).padStart(2,'0');
+  const dtStart=y+''+pad(mo)+pad(d)+'T'+pad(sH)+pad(sM)+'00';
+  const dtEnd=y+''+pad(mo)+pad(d)+'T'+pad(eH)+pad(eMi)+'00';
+  const dtStamp=new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Fit met Dicky//NL','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+apt.id+'@fitmetdicky','DTSTAMP:'+dtStamp,'DTSTART:'+dtStart,'DTEND:'+dtEnd,'SUMMARY:'+apt.name+' — '+apt.treatment,'DESCRIPTION:'+apt.treatment+(apt.tel?'\\\\nTel: '+apt.tel:''),'LOCATION:Fit met Dicky','END:VEVENT','END:VCALENDAR'].join('\\r\\n');
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  if(window.innerWidth<768){
+    const a=document.createElement('a'); a.href=url; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  } else {
+    const a=document.createElement('a'); a.href=url; a.download='afspraak-'+apt.name.split(' ')[0].toLowerCase()+'-'+apt.date+'.ics'; a.click(); URL.revokeObjectURL(url);
+  }
+  showToast('Kalenderitem aangemaakt!');
+}
+
+// MAIL
+function getEmailAutomationConfig(){
+  return {
+    pubkey: EMAILJS_PUBLIC_KEY || ejsSettings.pubkey,
+    service: EMAILJS_SERVICE_ID || ejsSettings.service,
+    template: EMAILJS_TEMPLATE_ID || ejsSettings.template,
+    auto: EMAILJS_AUTO_SEND || ejsSettings.auto
+  };
+}
+function isEmailAutomationReady(){
+  const cfg=getEmailAutomationConfig();
+  return !!(cfg.auto && cfg.pubkey && cfg.service && cfg.template && window.emailjs);
+}
+function formatEmailJsError(e){
+  if(!e) return 'Onbekende fout';
+  if(typeof e === 'string') return e;
+  return e.text || e.message || JSON.stringify(e);
+}
+function buildMailtoHref(apt){
+  const subject=encodeURIComponent('Bevestiging afspraak - '+fmtDate(parseDate(apt.date)));
+  return 'mailto:'+apt.email+'?subject='+subject+'&body='+encodeURIComponent(buildMailBody(apt));
+}
+async function sendConfirmationMail(apt){
+  const body=buildMailBody(apt);
+  const cfg=getEmailAutomationConfig();
+  if(!apt.email) return {method:'none',message:'Geen e-mailadres beschikbaar.'};
+  if(!(cfg.auto && cfg.pubkey && cfg.service && cfg.template)){
+    return {method:'not-ready',message:'EmailJS is nog niet volledig ingesteld.'};
+  }
+  if(!window.emailjs){
+    return {method:'not-ready',message:'EmailJS script is niet geladen. Check je internetverbinding of browserblokkering.'};
+  }
+  try{
+        const templateParams={
+      to_email: apt.email,
+      email: apt.email,
+      recipient_email: apt.email,
+      reply_to: apt.email,
+      to_name: apt.name,
+      name: apt.name,
+      message: body,
+      message_html: buildMailHtmlBody(apt),
+      appointment_date: apt.date,
+      appointment_time: fmtTime(apt.startMin),
+      treatment: apt.treatment
+    };
+    await emailjs.send(cfg.service,cfg.template,templateParams,{publicKey:cfg.pubkey});
+    showToast('Bevestigingsmail verstuurd!');
+    return {method:'emailjs'};
+  }catch(e){
+    console.error('EmailJS:',e);
+    const msg=formatEmailJsError(e);
+    showToast('Automatisch mailen mislukt.');
+    return {method:'failed',message:'EmailJS fout: '+msg};
+  }
+}
+// KLANTEN
+function populateKlantDropdown(){
+  const sel=document.getElementById('f-klant-select'); if(!sel) return;
+  const sorted=[...klanten].sort((a,b)=>a.name.localeCompare(b.name));
+  sel.innerHTML='<option value="">— Nieuwe klant —</option>'+sorted.map(k=>'<option value="'+k.id+'">'+k.name+(k.tel?' · '+k.tel:'')+'</option>').join('');
+}
+
+function selectKlant(id){
+  const velden  = document.getElementById('klant-velden');
+  const summary = document.getElementById('klant-summary');
+
+  if(!id){
+    // Nieuwe klant — toon velden, verberg samenvatting, leeg velden
+    velden.style.display  = '';
+    summary.style.display = 'none';
+    ['f-voornaam','f-achternaam','f-tel','f-email'].forEach(i=>{
+      const el=document.getElementById(i); if(el) el.value='';
+    });
+    validateForm();
+    return;
+  }
+
+  const k = klanten.find(c=>c.id===id);
+  if(!k) return;
+
+  // Vul hidden velden in voor saveAppointment
+  document.getElementById('f-voornaam').value  = k.voornaam || k.name.split(' ')[0] || '';
+  document.getElementById('f-achternaam').value = k.achternaam || k.name.split(' ').slice(1).join(' ') || '';
+  document.getElementById('f-tel').value   = k.tel   || '';
+  document.getElementById('f-email').value = k.email || '';
+
+  // Toon samenvatting, verberg velden
+  document.getElementById('klant-summary-naam').textContent = k.name;
+  document.getElementById('klant-summary-sub').textContent  =
+    [k.tel, k.email].filter(Boolean).join(' · ') || 'Geen contactgegevens';
+  velden.style.display  = 'none';
+  summary.style.display = '';
+
+  validateForm();
+}
+
+function clearKlantSelect(){
+  document.getElementById('f-klant-select').value = '';
+  selectKlant('');
+}
+
+function toggleKlantForm(){
+  const form=document.getElementById('klant-form'), btn=document.getElementById('klant-add-btn');
+  const open=form.style.display==='none';
+  form.style.display=open?'block':'none'; btn.textContent=open?'\u2715 Sluiten':'+ Klant';
+  if(open) document.getElementById('nk-voornaam').focus();
+}
+
+function saveNewKlant(){
+  const vn=document.getElementById('nk-voornaam').value.trim(), an=document.getElementById('nk-achternaam').value.trim(), tel=document.getElementById('nk-tel').value.trim(), email=document.getElementById('nk-email').value.trim();
+  if(!vn){showToast('Vul minimaal een voornaam in');return;}
+  const naam=(vn+' '+an).trim();
+  klanten.push({id:Date.now().toString(),name:naam,voornaam:vn,achternaam:an,tel,email,apts:0,lastDate:''});
+  save(); ['nk-voornaam','nk-achternaam','nk-tel','nk-email'].forEach(id=>document.getElementById(id).value='');
+  toggleKlantForm(); renderKlanten(''); showToast(naam+' toegevoegd!');
+}
+
+function renderKlanten(q){
+  const list=document.getElementById('klant-list-items');
+  const filtered=klanten.filter(k=>!q||k.name.toLowerCase().includes(q.toLowerCase()));
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px">👤</div><div style="font-size:14px">'+(q?'Geen resultaten':'Nog geen klanten')+'</div></div>';return;}
+  list.innerHTML=filtered.map((k,index)=>{
+    const fullName=((k.voornaam||'')+' '+(k.achternaam||'')).trim()||k.name||'Zonder naam';
+    const contact=[k.tel||'',k.email||''].filter(Boolean).join(' · ')||'Geen contactgegevens';
+    const aptLabel=(k.apts||0)===1?'1 afspraak':(k.apts||0)+' afspraken';
+    const lastLabel=k.lastDate?fmtDate(parseDate(k.lastDate)):'Nog geen afspraak';
+    return `
+      <div class="klant-card">
+        <div class="klant-avatar" style="background:${avatarClr(fullName)}">${initials(fullName)}</div>
+        <div class="klant-main">
+          <div class="klant-card-top">
+            <div class="klant-name-wrap">
+              <div class="klant-name">${fullName}</div>
+              <div class="klant-meta">${contact}</div>
+            </div>
+            <div class="klant-actions">
+              <button onclick="openEditKlantByIndex(${index},event)" class="klant-btn edit">Wijzig</button>
+              <button onclick="deleteKlantByIndex(${index},event)" class="klant-btn delete">Verwijder</button>
+            </div>
+          </div>
+          <div class="klant-apts">${aptLabel} · ${lastLabel}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openEditKlantByIndex(index, e){
+  if(e) e.stopPropagation();
+  const k = klanten[index]; if(!k) return;
+  const esc = (v='') => String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  const overlay = document.createElement('div');
+  overlay.id = 'edit-klant-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)';
+  overlay.innerHTML = `
+    <div style="background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:520px;margin:0 auto;padding-bottom:calc(env(safe-area-inset-bottom,0px)+24px)">
+      <div style="width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto"></div>
+      <div style="padding:0 24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--blue)">Klant bewerken</div>
+        <div style="width:30px;height:30px;background:var(--off);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:16px" onclick="document.getElementById('edit-klant-overlay').remove()">×</div>
+      </div>
+      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Voornaam</div>
+            <input id="ek-voornaam" class="form-input" type="text" value="${esc(k.voornaam||String(k.name||'').split(' ')[0]||'')}" style="margin-bottom:0">
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Achternaam</div>
+            <input id="ek-achternaam" class="form-input" type="text" value="${esc(k.achternaam||String(k.name||'').split(' ').slice(1).join(' ')||'')}" style="margin-bottom:0">
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">Telefoon</div>
+          <input id="ek-tel" class="form-input" type="tel" value="${esc(k.tel||'')}" style="margin-bottom:0">
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text);margin-bottom:5px">E-mail</div>
+          <input id="ek-email" class="form-input" type="email" value="${esc(k.email||'')}" style="margin-bottom:0">
+        </div>
+        <button onclick="saveEditKlantByIndex(${index})" style="width:100%;background:var(--blue);color:white;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">
+          Opslaan
+        </button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', ev => { if(ev.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+function saveEditKlantByIndex(index){
+  const k = klanten[index]; if(!k) return;
+  const old = {...k};
+  const vn = document.getElementById('ek-voornaam').value.trim();
+  const an = document.getElementById('ek-achternaam').value.trim();
+  if(!vn){ showToast('Voornaam is verplicht'); return; }
+  k.voornaam = vn;
+  k.achternaam = an;
+  k.name = (vn+' '+an).trim();
+  k.tel = document.getElementById('ek-tel').value.trim();
+  k.email = document.getElementById('ek-email').value.trim();
+
+  appointments = appointments.map(a=>{
+    const sameByEmail = old.email && a.email && String(a.email).trim().toLowerCase()===String(old.email).trim().toLowerCase();
+    const sameByTel = old.tel && a.tel && String(a.tel).replace(/\D/g,'')===String(old.tel).replace(/\D/g,'');
+    const sameByName = String(a.name||'').trim()===String(old.name||'').trim();
+    if(sameByEmail || sameByTel || sameByName){
+      return {...a, name:k.name, voornaam:k.voornaam, achternaam:k.achternaam, tel:k.tel, email:k.email};
+    }
+    return a;
+  });
+
+  save();
+  document.getElementById('edit-klant-overlay')?.remove();
+  renderKlanten(document.querySelector('.klant-list input')?.value||'');
+  populateKlantDropdown();
+  showToast(k.name+' bijgewerkt!');
+}
+
+function deleteKlantByIndex(index,e){
+  if(e) e.stopPropagation();
+  const k=klanten[index];
+  if(!k) return;
+  if(!confirm('Klant verwijderen?')) return;
+  klanten.splice(index,1);
+  save();
+  renderKlanten(document.querySelector('.klant-list input')?.value||'');
+  populateKlantDropdown();
+  showToast('Klant verwijderd.');
+}
+
+// FORM INIT
+function renderNieuw(){
+  const d=new Date(); d.setHours(0,0,0,0);
+  document.getElementById('f-datum').min=dateKey(d);
+  document.getElementById('f-datum').value=dateKey(selectedDate);
+  populateKlantDropdown(); populateTreatmentSelect('f-type'); updateAvailability(); validateForm();
+}
+
+// SETTINGS
+function initSettings(){
+  updateCloudUi();
+}
+
+
+// TOAST
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg; t.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+24px);left:50%;transform:translateX(-50%);background:var(--blue);color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);font-family:DM Sans,sans-serif';
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+}
+
+// INIT
+function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js').catch(err=>console.warn('Service worker registratie mislukt:', err));
+}
+
+async function initApp(){
+  registerServiceWorker();
+  const savedLogo=localStorage.getItem('fmd_logo');
+  if(savedLogo) document.getElementById('logo-wrap').innerHTML='<img src="'+savedLogo+'" style="width:100%;height:100%;object-fit:cover">';
+  const hasCloudSession=await syncCloudSession();
+  const loadedFromCloud=hasCloudSession ? await loadFromCloud({silent:true}) : false;
+  if(!loadedFromCloud){
+    const cache=readCache();
+    appointments=cache.appointments.map(normalizeAppointment);
+    klanten=cache.klanten.map(normalizeKlant);
+    behandelingen=(cache.behandelingen||DEFAULT_BEHANDELINGEN).map(normalizeBehandeling);
+    blockedDays=cache.blockedDays||blockedDays;
+    ejsSettings=cache.ejsSettings||ejsSettings;
+    msgTemplate=cache.msgTemplate||msgTemplate;
+  }
+  renderAgenda();
+  hideStartupOverlay();
+}
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+<!-- QUICK ADD MODAL -->
+<div id="quick-overlay" onclick="if(event.target===this)closeQuickAdd()" style="display:none;position:fixed;inset:0;background:rgba(29,52,97,.55);z-index:300;backdrop-filter:blur(4px)">
+  <div id="quick-sheet" style="position:absolute;bottom:0;left:0;right:0;background:var(--white);border-radius:24px 24px 0 0;padding-bottom:calc(env(safe-area-inset-bottom,0px)+24px);max-height:90dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease">
+    <div style="width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto 0"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px 0">
+      <div id="qa-title" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--blue)">Klantgegevens</div>
+      <div style="display:flex;gap:6px">
+        <div id="qa-dot1" style="width:8px;height:8px;border-radius:50%;background:var(--red)"></div>
+        <div id="qa-dot2" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
+        <div id="qa-dot3" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
+      </div>
+    </div>
+    <div id="qa-body" style="padding:20px 24px"></div>
+    <div style="padding:0 24px;display:flex;gap:10px">
+      <button id="qa-back" onclick="qaBack()" style="background:var(--off);border:1.5px solid var(--border);border-radius:14px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;padding:14px 20px;cursor:pointer;display:none">Terug</button>
+      <button id="qa-next" onclick="qaNext()" style="flex:1;background:var(--blue);color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;padding:14px;cursor:pointer">Volgende</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+</body>
+</html>

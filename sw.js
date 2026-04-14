@@ -1,10 +1,12 @@
-﻿const CACHE_NAME = 'fitmetdicky-20260413h';
+﻿const CACHE_NAME = 'fitmetdicky-20260414a';
 const ASSETS = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'manifest.webmanifest?v=20260413b',
+  'manifest.webmanifest?v=20260414a',
+  'styles/fmd-app.css?v=20260414a',
   'styles/fmd-polish.css?v=20260413k',
+  'js/app.js?v=20260414b',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',
