@@ -1134,6 +1134,35 @@ function renderDaySlots(date){
     timeSlot.appendChild(slotContent);
     slots.appendChild(timeSlot);
   });
+  const realApts=dayApts.filter(a=>a.type!=='blocked');
+  if(realApts.length){
+    const exclTotal=realApts.reduce((sum,a)=>sum+(Number(a.hourlyRate||0)*Number(a.duration||0)/60),0);
+    const fmt=v=>'€ '+v.toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+,)/g,'$1.');
+    const summary=document.createElement('div');
+    summary.className='day-summary';
+    const countEl=document.createElement('span');
+    countEl.textContent=`${realApts.length} afspraak${realApts.length!==1?'en':''}`;
+    const right=document.createElement('div');
+    right.className='day-summary-right';
+    const totalEl=document.createElement('span');
+    totalEl.className='day-summary-total';
+    totalEl.textContent=fmt(exclTotal);
+    const toggle=document.createElement('button');
+    toggle.className='btw-toggle';
+    toggle.textContent='excl. btw';
+    let inclBtw=false;
+    toggle.onclick=()=>{
+      inclBtw=!inclBtw;
+      toggle.textContent=inclBtw?'incl. btw':'excl. btw';
+      toggle.classList.toggle('active',inclBtw);
+      totalEl.textContent=fmt(inclBtw?exclTotal*1.21:exclTotal);
+    };
+    right.appendChild(totalEl);
+    right.appendChild(toggle);
+    summary.appendChild(countEl);
+    summary.appendChild(right);
+    slots.appendChild(summary);
+  }
 }
 
 // ── QUICK ADD (slide-per-slide) ──
